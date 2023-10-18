@@ -62,6 +62,8 @@ void UART_OutChar(char data);
 // Output: none
 void UART_OutString(char *pt);
 
+void UART_OutStringConst(const char *pt);
+
 //------------UART_InUDec------------
 // InUDec accepts ASCII input in unsigned decimal format
 //     and converts to a 32-bit unsigned number

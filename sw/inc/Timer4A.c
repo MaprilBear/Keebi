@@ -48,12 +48,21 @@ void Timer4A_Init(void(*task)(void), uint32_t period, uint32_t priority){
   TIMER4_CTL_R = 0x00000001;    // 10) enable TIMER4A
 }
 
+void Timer4A_Period(uint32_t period){
+	TIMER4_TAILR_R = period-1;    // 4) reload value
+}
+
 void Timer4A_Handler(void){
   TIMER4_ICR_R = TIMER_ICR_TATOCINT;// acknowledge TIMER4A timeout
   (*PeriodicTask4)();               // execute user task
 }
 
 void Timer4A_Stop(void){
-  NVIC_DIS2_R = 0x00000040;        // 9) disable interrupt 70 in NVIC
+//  NVIC_DIS2_R = 0x00000040;        // 9) disable interrupt 70 in NVIC
   TIMER4_CTL_R = 0x00000000;       // 10) disable timer4A
+}
+
+void Timer4A_Start(){
+  TIMER4_CTL_R = 0x00000001;    // 10) enable TIMER4A
+//	TIMER0_TAILR_R = period-1;    // 4) reload value
 }

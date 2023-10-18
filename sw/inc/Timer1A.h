@@ -22,8 +22,9 @@
  http://users.ece.utexas.edu/~valvano/
  */
 
-#ifndef __TIMER1INTS_H__ // do not include more than once
-#define __TIMER1INTS_H__
+#ifndef __TIMER1AINTS_H__ // do not include more than once
+#define __TIMER1AINTS_H__
+#include <stdint.h>
 
 // ***************** Timer1A_Init ****************
 // Activate Timer1 interrupts to run user task periodically
@@ -33,6 +34,12 @@
 // Outputs: none
 void Timer1A_Init(void(*task)(void), uint32_t period, uint32_t priority);
 
+void Timer1AB_Init(void(*taskA)(void), uint32_t periodA, uint32_t priorityA, void(*taskB)(void), uint32_t periodB, uint32_t priorityB);
+
 void Timer1A_Stop(void);
+
+void Timer1B_Stop(void);
+
+void Timer1A_Start(uint32_t period);
 
 #endif // __TIMER2INTS_H__

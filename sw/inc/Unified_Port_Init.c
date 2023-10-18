@@ -138,12 +138,13 @@ void Port_B_Init(void){
   GPIO_PORTB_DEN_R      |=  0x80;           // enable digital I/O on PB7
 
   // ---------------  Initialize PB6 as M0PWM0  -----------------------
+    /*
   GPIO_PORTB_AFSEL_R    |=  0x40;           // enable alt funct on PB6
   GPIO_PORTB_PCTL_R     &= ~0x0F000000;     // configure PB6 as PWM0
   GPIO_PORTB_PCTL_R     |=  0x04000000;  
   GPIO_PORTB_AMSEL_R    &= ~0x40;           // disable analog functionality on PB6
   GPIO_PORTB_DEN_R      |=  0x40;           // enable digital I/O on PB6
-  
+  */
   // ---------------  Initialize PB5 as AIN11  ----------------------- 
   GPIO_PORTB_DIR_R      &= ~0x20;           // make PB5 input
   GPIO_PORTB_AFSEL_R    |=  0x20;           // enable alternate function on PB5
@@ -232,11 +233,12 @@ void Port_D_Init(void){
   // ---------------  Initialize PD3,1,0 as SSI1 MOSI, FS & SCK  ---------------- 
     
   GPIO_PORTD_AMSEL_R    &= ~0x0B;           // disable analog functionality on PD
-  GPIO_PORTD_AFSEL_R    |=  0x0B;           // enable alt funct on PD3,1,0
+  //GPIO_PORTD_AFSEL_R    |=  0x0B;           // enable alt funct on PD3,1,0
   GPIO_PORTD_DEN_R      |=  0x0B;           // enable digital I/O on PD3,1,0
-  GPIO_PORTD_PCTL_R      = (GPIO_PORTD_PCTL_R
-                          & 0xFFFF0F00)
-                          + 0x00002022;
+  GPIO_PORTD_DIR_R      |= 0xB;  
+  //GPIO_PORTD_PCTL_R      = (GPIO_PORTD_PCTL_R
+  //                        & 0xFFFF0F00)
+  //                        + 0x00002022;
 }
 
 // ----------------------------------------------------------------------------
@@ -267,21 +269,21 @@ void Port_E_Init(void){
 
  // ---------------  Initialize PE3,1,0 as GPIO  ---------------------------------  
 
-  GPIO_PORTE_DIR_R      |=  0x0A;           // output digital I/O on PE3,1
-  GPIO_PORTE_DIR_R      &= ~0x01;           // input digital I/O on PE0
-  GPIO_PORTE_AMSEL_R    &= ~0x0B;           // disable analog functionality on PE3,1,0
-  GPIO_PORTE_AFSEL_R    &= ~0x0B;           // disable alt funct on PE3,1,0
-  GPIO_PORTE_DEN_R      |=  0x0B;           // enable digital I/O on PE3,1,0
+  // GPIO_PORTE_DIR_R      |=  0x0A;           // output digital I/O on PE3,1
+  GPIO_PORTE_DIR_R      &= ~0x0F;           // input digital I/O on PE0-3
+  GPIO_PORTE_AMSEL_R    &= ~0x0F;           // disable analog functionality on PE0-3
+  GPIO_PORTE_AFSEL_R    &= ~0x0F;           // disable alt funct on PE0-3
+  GPIO_PORTE_DEN_R      |=  0x0F;           // enable digital I/O on PE0-3
   
   GPIO_PORTE_PCTL_R      = (GPIO_PORTE_PCTL_R 
                          & 0xFFFF0F00);
   
 // ---------------  Initialize PE2 as AIN1  ---------------------------------  
   
-  GPIO_PORTE_DIR_R      &= ~0x04;           // make PE2 input
-  GPIO_PORTE_AFSEL_R    |=  0x04;           // enable alternate function on PE2
-  GPIO_PORTE_DEN_R      &= ~0x04;           // disable digital I/O on PE2
-  GPIO_PORTE_AMSEL_R    |=  0x04;           // enable analog functionality on PE2
+//  GPIO_PORTE_DIR_R      &= ~0x04;           // make PE2 input
+//  GPIO_PORTE_AFSEL_R    |=  0x04;           // enable alternate function on PE2
+//  GPIO_PORTE_DEN_R      &= ~0x04;           // disable digital I/O on PE2
+//  GPIO_PORTE_AMSEL_R    |=  0x04;           // enable analog functionality on PE2
 }
   
 // ----------------------------------------------------------------------------
@@ -299,9 +301,10 @@ void Port_F_Init(void){
   
   GPIO_PORTF_AMSEL_R    = 0x00;             // disable analog on PF
   GPIO_PORTF_PCTL_R     = 0x00000000;       // PCTL GPIO on PF4-0
-  GPIO_PORTF_DIR_R      = 0x0E;             // PF4,PF0 in, PF3-1 out
+//  GPIO_PORTF_DIR_R      = 0x0E;            // PF4,PF0 in, PF3-1 out
+	GPIO_PORTF_DIR_R      = 0x00;             // PF4-0 in
   GPIO_PORTF_AFSEL_R    = 0x00;             // disable alt funct on PF7-0
-  GPIO_PORTF_PUR_R      = 0x11;             // enable pull-up on PF0 and PF4
+//  GPIO_PORTF_PUR_R      = 0x11;             // enable pull-up on PF0 and PF4
   GPIO_PORTF_DEN_R      = 0x1F;             // enable digital I/O on PF4-0
 }
 

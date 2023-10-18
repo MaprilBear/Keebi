@@ -112,6 +112,7 @@
 #ifndef _ST7735H_
 #define _ST7735H_
 #include <stdint.h>
+#include <stdbool.h>
 // some flags for ST7735_InitR()
 enum initRFlags{
   none,
@@ -133,6 +134,11 @@ enum initRFlags{
 #define ST7735_MAGENTA 0xF81F
 #define ST7735_YELLOW  0x07FF
 #define ST7735_WHITE   0xFFFF
+
+
+uint32_t ST7735_GetCursorX();
+
+uint32_t ST7735_GetCursorY();
 
 //------------ST7735_InitB------------
 // Initialization for ST7735B screens.
@@ -290,7 +296,7 @@ void ST7735_DrawCharS(int16_t x, int16_t y, char c, int16_t textColor, int16_t b
 //        bgColor   16-bit color of the background
 //        size      number of pixels per character pixel (e.g. size==2 prints each pixel of font as 2x2 square)
 // Output: none
-void ST7735_DrawChar(int16_t x, int16_t y, char c, int16_t textColor, int16_t bgColor, uint8_t size);
+uint32_t ST7735_DrawString(uint16_t x, uint16_t y, char *pt, int16_t textColor);
 
 //------------ST7735_DrawString------------
 // String draw function.
@@ -302,7 +308,7 @@ void ST7735_DrawChar(int16_t x, int16_t y, char c, int16_t textColor, int16_t bg
 //        textColor 16-bit color of the characters
 // bgColor is Black and size is 1
 // Output: number of characters printed
-uint32_t ST7735_DrawString(uint16_t x, uint16_t y, char *pt, int16_t textColor);;
+uint32_t ST7735_DrawStringCustom(uint16_t x, uint16_t y, char *pt, int16_t textColor, int16_t background_color, uint8_t size, uint8_t x_offset, uint8_t y_offset);
 
 
 
@@ -323,6 +329,15 @@ void ST7735_SetCursor(uint32_t newX, uint32_t newY);
 // Output: none
 // Variable format 1-10 digits with no space before or after
 void ST7735_OutUDec(uint32_t n);
+
+//-----------------------ST7735_OutUDec-----------------------
+// Output a 32-bit number in unsigned decimal format
+// Position determined by ST7735_SetCursor command
+// Color set by ST7735_SetTextColor
+// Input: 32-bit number to be transferred
+// Output: none
+// Variable format 1-10 digits with no space before or after
+void ST7735_OutUDecCustom(uint32_t n, int16_t text_color, int16_t background_color, uint8_t size, uint8_t x_offset, uint8_t y_offset);
 
 //-----------------------ST7735_OutUDec4-----------------------
 // Output a 32-bit number in unsigned 4-digit decimal format
@@ -473,6 +488,8 @@ void ST7735_PlotNextErase(void);
 // Outputs: none
 void ST7735_OutChar(char ch);
 
+void ST7735_OutCharCustom(char ch, int16_t text_color, int16_t background_color, uint8_t size, uint8_t x_offset, uint8_t y_offset);
+
 //********ST7735_OutString*****************
 // Print a string of characters to the ST7735 LCD.
 // Position determined by ST7735_SetCursor command
@@ -481,6 +498,8 @@ void ST7735_OutChar(char ch);
 // inputs: ptr  pointer to NULL-terminated ASCII string
 // outputs: none
 void ST7735_OutString(char *ptr);
+
+void ST7735_OutStringCustom(char *ptr, int16_t text_color, int16_t background_color, uint8_t size, uint8_t x_offset, uint8_t y_offset);
 
 // ************** ST7735_SetTextColor ************************
 // Sets the color in which the characters will be printed
@@ -604,6 +623,8 @@ Parameter LCD display
 */
 void ST7735_uBinOut6(uint32_t n); 
 
+void ST7735_OutTime(short hour, short minute, short second, bool mode);
+
 /**
  * @brief ST7735_XYplotInit specifies the X and Y axes for an X-Y scatter plot.
  *        It also draws the title and clears the plot area.
@@ -616,6 +637,21 @@ void ST7735_uBinOut6(uint32_t n);
  * @note Assumes minX < maxX, and minY < maxY.
  */
 void ST7735_XYplotInit(char *title, int32_t minX, int32_t maxX, int32_t minY, int32_t maxY);
+
+
+/**
+ * @brief ST7735_ClockPlotInit specifies the X and Y axes for an X-Y scatter plot.
+ *        It does not clear the plot and does not print anything.
+ *				For use drawing analog clock in Lab 3/4
+ * @param title ASCII null terminated string to label the plot.
+ * @param minX  Smallest X data value allowed
+ * @param maxX  Largest X data value allowed
+ * @param minY  Smallest Y data value allowed
+ * @param maxY  Largest Y data value allowed
+ * @note Assumes minX < maxX, and minY < maxY.
+ */
+void ST7735_ClockPlotInit(int32_t minX, int32_t maxX, int32_t minY, int32_t maxY);
+
 
 /**
  * @brief ST7735_XYplot plots an array of (x, y) data.

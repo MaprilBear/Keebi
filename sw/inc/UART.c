@@ -86,6 +86,13 @@ void UART_OutString(char *pt){
   }
 }
 
+void UART_OutStringConst(const char *pt){
+  while(*pt){
+    UART_OutChar(*pt);
+    pt++;
+  }
+}
+
 //------------UART_InUDec------------
 // InUDec accepts ASCII input in unsigned decimal format
 //     and converts to a 32-bit unsigned number
@@ -274,7 +281,7 @@ int ferror(FILE *f){
 // Abstraction of general output device
 // Volume 2 section 3.4.5
 
-
+/*
 // Clear display
 void Output_Clear(void){ // Clears the display
   // not implemented on the UART
@@ -291,7 +298,7 @@ void Output_On(void){    // Turns on the display
 void Output_Color(uint32_t newColor){ // Set color of future output 
   // not implemented on the UART
 }
-
+*/
 
 #ifdef __TI_COMPILER_VERSION__
 	//Code Composer Studio Code

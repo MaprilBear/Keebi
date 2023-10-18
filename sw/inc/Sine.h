@@ -28,6 +28,7 @@
 //http://users.ece.utexas.edu/~valvano/
 
 #pragma once
+#include "./inc/tm4c123gh6pm.h"
 
 //------------Sin------------
 // Calculate the sine value of a given angle using table lookup and

@@ -115,6 +115,7 @@
 #include <stdlib.h>
 #include "ST7735.h"
 #include "../inc/tm4c123gh6pm.h"
+#include <stdbool.h>
 
 // 16 rows (0 to 15) and 21 characters (0 to 20)
 // Requires (11 + size*size*6*8) bytes of transmission for each character
@@ -512,6 +513,14 @@ static uint8_t Rotation;           // 0 to 3
 static enum initRFlags TabColor;
 static int16_t _width = ST7735_TFTWIDTH;   // this could probably be a constant, except it is used in Adafruit_GFX and depends on image rotation
 static int16_t _height = ST7735_TFTHEIGHT;
+
+uint32_t ST7735_GetCursorX(){
+  return StX;
+}
+
+uint32_t ST7735_GetCursorY(){
+  return StY;
+}
 
 
 // The Data/Command pin must be valid when the eighth bit is
@@ -1255,6 +1264,31 @@ uint32_t ST7735_DrawString(uint16_t x, uint16_t y, char *pt, int16_t textColor){
   return count;  // number of characters printed
 }
 
+
+//------------ST7735_DrawStringCustom------------
+// String draw function.
+// 16 rows (0 to 15) and 21 characters (0 to 20)
+// Requires (11 + size*size*6*8) bytes of transmission for each character
+// Input: x         columns from the left edge (0 to 20)
+//        y         rows from the top edge (0 to 15)
+//        pt        pointer to a null terminated string to be printed
+//        textColor 16-bit color of the characters
+// bgColor is Black and size is 1
+// Output: number of characters printed
+uint32_t ST7735_DrawStringCustom(uint16_t x, uint16_t y, char *pt, int16_t textColor, int16_t background_color, uint8_t size, uint8_t x_offset, uint8_t y_offset){
+  uint32_t count = 0;
+  if(y>15) return 0;
+  while(*pt){
+    ST7735_DrawCharS(x*6*size + x_offset, y*10*size + y_offset, *pt, textColor, background_color, size);
+    pt++;
+    x = x+1;
+    if(x>20) return count;  // number of characters printed
+    count++;
+  }
+  return count;  // number of characters printed
+}
+
+
 //-----------------------fillmessage-----------------------
 // Output a 32-bit number in unsigned decimal format
 // Input: 32-bit number to be transferred
@@ -1349,6 +1383,25 @@ void ST7735_OutUDec(uint32_t n){
   if(StX>20){
     StX = 20;
     ST7735_DrawCharS(StX*6,StY*10,'*',ST7735_RED,ST7735_BLACK, 1);
+  }
+}
+
+//-----------------------ST7735_OutUDecCustom-----------------------
+// Output a 32-bit number in unsigned decimal format
+// Position determined by ST7735_SetCursor command
+// Color set by ST7735_SetTextColor
+// Input: 32-bit number to be transferred
+// Output: none
+// Variable format 1-10 digits with no space before or after
+void ST7735_OutUDecCustom(uint32_t n, int16_t text_color, int16_t background_color, uint8_t size, uint8_t x_offset, uint8_t y_offset){
+  Messageindex = 0;
+  fillmessage(n);
+  Message[Messageindex] = 0; // terminate
+  ST7735_DrawStringCustom(StX,StY,Message,text_color, background_color, size, x_offset, y_offset);
+  StX = StX+Messageindex;
+  if(StX>20){
+    StX = 20;
+    ST7735_DrawCharS(StX*(6*size) + x_offset,StY*(10*size) + y_offset,'*',text_color,background_color, size);
   }
 }
 
@@ -1480,7 +1533,8 @@ int32_t Yrange; //YrangeDiv2;
 // Inputs: ymin and ymax are range of the plot
 // Outputs: none
 void ST7735_PlotClear(int32_t ymin, int32_t ymax){
-  ST7735_FillRect(0, 32, 128, 128, ST7735_Color565(228,228,228)); // light grey
+  //ST7735_FillRect(0, 32, 128, 128, ST7735_Color565(228,228,228)); // light grey
+	ST7735_FillRect(0, 32, 128, 128, ST7735_Color565(0,0,0)); // black
   if(ymax>ymin){
     Ymax = ymax;
     Ymin = ymin;
@@ -1735,6 +1789,30 @@ void ST7735_OutChar(char ch){
   }
   return;
 }
+
+// *************** ST7735_OutChar ********************
+// Output one character to the LCD
+// Position determined by ST7735_SetCursor command
+// Inputs: 8-bit ASCII character
+// Outputs: none
+void ST7735_OutCharCustom(char ch, int16_t text_color, int16_t background_color, uint8_t size, uint8_t x_offset, uint8_t y_offset){
+  if((ch == 10) || (ch == 13) || (ch == 27)){
+    StY++; StX=0;
+    if(StY>15){
+      StY = 0;
+    }
+    ST7735_DrawString(0,StY,"                     ",StTextColor);
+    return;
+  }
+  ST7735_DrawCharS(StX*6*size + x_offset,StY*10*size + y_offset,ch,text_color,background_color, size);
+  StX++;
+  if(StX>20){
+    StX = 20;
+    ST7735_DrawCharS(StX*6*size + x_offset,StY*10*size + y_offset,'*',ST7735_RED,background_color, size);
+  }
+  return;
+}
+
 //********ST7735_OutString*****************
 // Print a string of characters to the ST7735 LCD.
 // Position determined by ST7735_SetCursor command
@@ -1748,6 +1826,22 @@ void ST7735_OutString(char *ptr){
     ptr = ptr + 1;
   }
 }
+
+
+//********ST7735_OutStringCustom*****************
+// Print a string of characters to the ST7735 LCD.
+// Position determined by ST7735_SetCursor command
+// Color set by ST7735_SetTextColor
+// The string will not automatically wrap.
+// inputs: ptr  pointer to NULL-terminated ASCII string
+// outputs: none
+void ST7735_OutStringCustom(char *ptr, int16_t text_color, int16_t background_color, uint8_t size, uint8_t x_offset, uint8_t y_offset){
+  while(*ptr){
+    ST7735_OutCharCustom(*ptr, text_color, background_color, size, x_offset, y_offset);
+    ptr = ptr + 1;
+  }
+}
+
 // ************** ST7735_SetTextColor ************************
 // Sets the color in which the characters will be printed
 // Background color is fixed at black
@@ -1758,6 +1852,7 @@ void ST7735_SetTextColor(uint16_t color){
   StTextColor = color;
 }
 
+/*
 // Print a character to ST7735 LCD.
 int fputc(int ch, FILE *f){
   ST7735_OutChar(ch);
@@ -1769,12 +1864,14 @@ int fgetc (FILE *f){
 }
 // Function called when file error occurs.
 int ferror(FILE *f){
-  /* Your implementation of ferror */
   return EOF;
 }
+*/
+
 // Abstraction of general output device
 // Volume 2 section 3.4.5
 
+/*
 // *************** Output_Init ********************
 // Standard device driver initialization function for printf
 // Initialize ST7735 LCD
@@ -1784,6 +1881,7 @@ void Output_Init(void){
   ST7735_InitR(INITR_REDTAB);
   ST7735_FillScreen(0);                 // set screen to black
 }
+*/
 
 // Clear display
 void Output_Clear(void){ // Clears the display
@@ -1896,6 +1994,33 @@ void ST7735_sDecOut2(int32_t n){
  */
 void ST7735_sDecOut3(int32_t n) {
     /* TODO (ECE445L Lab 1): complete this. */
+	int8_t minDigits = 4;
+	char outBuffer[8] = {' ',' ','0','.','0','0','0', 0};
+  int8_t index = 6;
+  uint8_t currDigit;
+	if (n >= 100000){
+		ST7735_OutString(" **.***");
+	} else if (n <= -100000){
+		ST7735_OutString("-**.***");
+	} else {
+		
+		if (n < 0){
+			outBuffer[0] = '-';
+			n = -n;
+		}
+		
+		while (minDigits > 0 || (n > 0 && index >= 1)){
+			if (index == 3){
+				index--;
+				continue;
+			}
+			currDigit = n % 10;
+			n /= 10;
+			minDigits--;
+			outBuffer[index--] = currDigit + '0';
+		} 
+		ST7735_OutString(outBuffer); 
+	}
 }
 
 /**
@@ -1925,6 +2050,27 @@ void ST7735_sDecOut3(int32_t n) {
  */
 void ST7735_uBinOut5(uint32_t n) {
     /* TODO (ECE445L Lab 1): complete this. */
+	char outBuffer[8] = {' ',' ','0','.','0','0', 0};
+  uint8_t currDigit;
+  int8_t minDigits = 3;
+		uint8_t index = 5;
+	if (n >= 32000){
+		ST7735_OutString("***.**");
+	} else {
+		
+		n = ((100 * n) + 16) / 32;
+		while (minDigits > 0 || (n > 0 && index >= 0)){
+			if (index == 3){
+				index--;
+				continue;
+			}
+			currDigit = n % 10;
+			n /= 10;
+			minDigits--;
+			outBuffer[index--] = currDigit + '0';
+		}
+		ST7735_OutString(outBuffer); 
+	}
 }
 
 /**************ST7735_uBinOut6***************
@@ -1982,6 +2128,71 @@ void ST7735_uBinOut6(uint32_t n){
   }
 } 
 
+/**
+* @brief ST7735_OutTime sends the time specified in the paramaters in XX:XX:XX in either 12 or 24 hour time
+ *
+ * @param hour    0-24, 24 hour based even if mode is set to 12-hour
+ * @param minute  0-60
+ * @param second  0-60
+ * @param mode    0 = 12-hour display, 1 = 24-hour display
+ */
+void ST7735_OutTime(short hour, short minute, short second, bool mode){
+  if (mode == 0){
+    // 12-hour
+    if (hour == 0){
+      ST7735_OutString("12");
+    } else if (hour < 10 || (hour >= 13 && hour < 22)){
+      ST7735_OutChar('0');
+      ST7735_OutUDec(hour % 12);
+    } else {
+      ST7735_OutUDec(hour % 12);
+    }
+  } else {
+    if (hour < 10){
+      ST7735_OutChar('0');
+      ST7735_OutChar('0' + hour);
+    } else {
+      ST7735_OutUDec(hour);
+    }
+  }
+    ST7735_OutChar(':');
+  if (minute < 10){
+    ST7735_OutChar('0');
+    ST7735_OutChar('0' + minute);
+  } else {
+    ST7735_OutUDec(minute);
+  }
+  ST7735_OutChar(':');
+  if (second < 10){
+    ST7735_OutChar('0');
+    ST7735_OutChar('0' + second);
+  } else {
+    ST7735_OutUDec(second);
+  }
+  
+  if (mode == 0){
+    if (hour < 12) {
+      ST7735_OutString(" AM");
+    } else {
+      ST7735_OutString(" PM");
+    }
+  }
+}
+
+
+int32_t minPlotX;
+int32_t maxPlotX;
+int32_t minPlotY;
+int32_t maxPlotY;
+int32_t plotRangeX;
+int32_t plotRangeY;
+
+int16_t plotStartX = 0;
+int16_t plotEndX = 127;
+int16_t plotStartY = 32;
+int16_t plotEndY = 159;
+int16_t plotWidth;
+int16_t plotHeight;
 
 /**
  * @brief ST7735_XYplotInit specifies the X and Y axes for an X-Y scatter plot.
@@ -1996,7 +2207,45 @@ void ST7735_uBinOut6(uint32_t n){
  */
 void ST7735_XYplotInit(char *title, int32_t minX, int32_t maxX, int32_t minY, int32_t maxY){
     /* TODO (ECE445L Lab 1): complete this. */
+	ST7735_FillRect(0,0,127,159, ST7735_BLACK);
+	ST7735_FillRect(plotStartX, plotStartY, plotEndX - plotStartX, plotEndY - plotStartY, ST7735_WHITE);
+	ST7735_SetCursor(0, 0);
+	ST7735_OutString(title);
+	
+	minPlotX = minX; // fixed point
+	minPlotY = minY; // fixed point
+	maxPlotX = maxX; // fixed point
+	maxPlotY = maxY; // fixed point
+	plotRangeX = maxX - minX; // fixed point
+	plotRangeY = maxY - minY; // fixed point
+	
+	plotWidth = (plotEndX - plotStartX); // integer
+  plotHeight = (plotEndY - plotStartY); // integer
 }
+
+/**
+ * @brief ST7735_ClockPlotInit specifies the X and Y axes for an X-Y scatter plot.
+ *        It does not clear the plot and does not print anything.
+ *				For use drawing analog clock in Lab 3/4
+ * @param title ASCII null terminated string to label the plot.
+ * @param minX  Smallest X data value allowed
+ * @param maxX  Largest X data value allowed
+ * @param minY  Smallest Y data value allowed
+ * @param maxY  Largest Y data value allowed
+ * @note Assumes minX < maxX, and minY < maxY.
+ */
+void ST7735_ClockPlotInit(int32_t minX, int32_t maxX, int32_t minY, int32_t maxY){	
+	minPlotX = minX; // fixed point
+	minPlotY = minY; // fixed point
+	maxPlotX = maxX; // fixed point
+	maxPlotY = maxY; // fixed point
+	plotRangeX = maxX - minX; // fixed point
+	plotRangeY = maxY - minY; // fixed point
+	
+	plotWidth = (plotEndX - plotStartX); // integer
+  plotHeight = (plotEndY - plotStartY); // integer
+}
+
 
 /**
  * @brief ST7735_XYplot plots an array of (x, y) data.
@@ -2009,7 +2258,18 @@ void ST7735_XYplotInit(char *title, int32_t minX, int32_t maxX, int32_t minY, in
  *       all points beyond the minX, maxX, minY, maxY bounds.
  */
 void ST7735_XYplot(uint32_t num, int32_t bufX[], int32_t bufY[], uint16_t color) {
+		
     /* TODO (ECE445L Lab 1): complete this. */
+  uint32_t i;
+  int16_t plotX;
+  int16_t plotY;
+	for (i = 0; i < num; i++){
+		if (!(bufX[i] < minPlotX || bufX[i] > maxPlotX || bufY[i] < minPlotY || bufY[i] > maxPlotY)){
+			plotX = ((bufX[i] - minPlotX) * plotWidth) / plotRangeX;
+			plotY = ((bufY[i] - minPlotY) * plotHeight) / plotRangeY;
+			ST7735_DrawPixel(plotX + plotStartX, plotEndY - plotY, color);
+		}
+	}
 }
 
 // plotLine function that is used when dx is greater than dy
@@ -2018,6 +2278,7 @@ void plotLineX(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t colo
   int32_t dx = x2-x1;
   int32_t dy = y2-y1;
   int32_t plotY = 0;
+  int32_t plotX;
 
   // int32_t yi = 1
   // y = y0
@@ -2025,7 +2286,7 @@ void plotLineX(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t colo
   
   plotY = y1;
   
-  int32_t plotX;
+  
   for(plotX = x1; plotX < x2; plotX++){
     if(abs(dx) > abs(dy)){
       ST7735_DrawPixel(plotX, plotY, color);
@@ -2052,6 +2313,7 @@ void plotLineY(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t colo
   int32_t dx = x2-x1;
   int32_t dy = y2-y1;
   int32_t plotX = 0;
+  int32_t plotY;
 
   // int32_t yi = 1
   // y = y0
@@ -2059,7 +2321,7 @@ void plotLineY(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t colo
   
   plotX = x1;
   
-  int32_t plotY;
+  
   for(plotY = y1; plotY < y2; plotY++){
     if(abs(dx) > abs(dy)){
       ST7735_DrawPixel(plotX, plotY, color);

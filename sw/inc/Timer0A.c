@@ -72,6 +72,11 @@ void Timer0A_Handler(void){
   (*PeriodicTask0)();                // execute user task
 }
 void Timer0A_Stop(void){
-  NVIC_EN0_R = 1<<19;            // 9) disable interrupt 19 in NVIC
+  // NVIC_EN0_R = 1<<19;            // 9) disable interrupt 19 in NVIC
   TIMER0_CTL_R = 0x00000000;     // 10) disable timer0A
+}
+
+void Timer0A_Start(uint32_t period){
+  TIMER0_CTL_R |= TIMER_CTL_TAEN;       // 10) enable timer0A
+	TIMER0_TAILR_R = period-1;    // 4) reload value
 }

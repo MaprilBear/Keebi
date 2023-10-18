@@ -648,7 +648,7 @@ WaitForInterrupt
 ; Source: https://www.freertos.org/Debugging-Hard-Faults-On-Cortex-M-Microcontrollers.html
 ;         https://github.com/ferenc-nemeth/arm-hard-fault-handler
 HardFault_Handler
-        MOV    R0, #4 ; Compiler V5 does not play nice with binary
+		MOV    R0, #4 ; Compiler V5 does not play nice with binary
         TST    LR, R0
         ITE    EQ
         MRSEQ  R0, MSP
