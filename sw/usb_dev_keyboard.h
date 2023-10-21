@@ -1,0 +1,1 @@
+void SendString(char *pcStr);
