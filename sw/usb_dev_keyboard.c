@@ -580,7 +580,7 @@ int
 main(void)
 {	
 
-	DisableInterrupts();
+	//DisableInterrupts();
 	
     uint_fast32_t ui32LastTickCount;
     bool bLastSuspend;
@@ -662,7 +662,7 @@ main(void)
     //MAP_SysTickIntEnable();
     //MAP_SysTickEnable();
 
-	EnableInterrupts();
+     // EnableInterrupts();
 
     //
     // The main loop starts here.  We begin by waiting for a host connection

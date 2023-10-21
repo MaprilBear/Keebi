@@ -189,7 +189,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>1</useUlib>
+            <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -423,6 +423,11 @@
               <FileType>5</FileType>
               <FilePath>.\Switch_Matrix.h</FilePath>
             </File>
+            <File>
+              <FileName>startup_rvmdk.S</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\startup_rvmdk.S</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -467,11 +472,6 @@
               <FileName>Timer1A.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\inc\Timer1A.c</FilePath>
-            </File>
-            <File>
-              <FileName>startup.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\inc\startup.s</FilePath>
             </File>
             <File>
               <FileName>Timer2A.c</FileName>
