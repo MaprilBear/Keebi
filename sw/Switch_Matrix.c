@@ -11,101 +11,189 @@
 #define COL1 PB5
 #define COL2 PB6
 
+uint8_t lastRow0 = 0;
+uint8_t lastRow1 = 0;
+uint8_t lastRow2 = 0;
 
 void Switch_Handler(){
 	static short counter = 0;
 	
+	uint8_t currentRow0 = 0;
+	uint8_t currentRow1 = 0;
+	uint8_t currentRow2 = 0;
 	
-	if (counter == 0){
-		GPIO_PORTF_DATA_R ^= 0x8;
-		counter++;
-	}
-	
-	GPIO_PORTF_DATA_R ^= 0x2;
-	
-	
-	/*
-	switch (counter % 3){
-		case 0:
 			// ROW0 - PF0
 			
 			// pulse row
 			GPIO_PORTF_DATA_R |= 0x1;
-			Clock_Delay1ms(100);
+			Clock_Delay(100);
 			
 			// sense columns
 			if (GPIO_PORTB_DATA_R & (1 << 4)){
 				// COL0 -> Q
-				//SendString("Q");
+				currentRow0 |= 0x1;
 			}
 			
 			if (GPIO_PORTB_DATA_R & (1 << 5)){
 				// COL1 -> W
-				//SendString("W");
+				currentRow0 |= 0x2;
 			}
 			
-			if (GPIO_PORTB_DATA_R & (1 << 5)){
+			if (GPIO_PORTB_DATA_R & (1 << 6)){
 				// COL2 -> E
-				//SendString("E");
+				currentRow0 |= 0x4;
 			}
 			
-			break;
-		case 1:
+			if ((currentRow0 & 0x1) != (lastRow0 & 0x1)){
+				if (currentRow0 & 0x1){
+					// Pressing 0,0 = Q
+					PressKey('Q');
+				} else {
+					// Releasing 0,0 = Q
+					ReleaseKey('Q');
+				}
+			}
+			
+			if ((currentRow0 & 0x2) != (lastRow0 & 0x2)){
+				if (currentRow0 & 0x2){
+					// Pressing 0,1 = W
+					PressKey('W');
+				} else {
+					// Releasing 0,1 = W
+					ReleaseKey('W');
+				}
+			}
+			
+			if ((currentRow0 & 0x4) != (lastRow0 & 0x4)){
+				if (currentRow0 & 0x4){
+					// Pressing 0,2 = E
+					PressKey('E');
+				} else {
+					// Releasing 0,2 = E
+					ReleaseKey('E');
+				}
+			}
+			
+			lastRow0 = currentRow0;
+			
+			GPIO_PORTF_DATA_R = 0;
+			Clock_Delay(100);
+			
 			// ROW1 - PF1
 			
 			// pulse row
 			GPIO_PORTF_DATA_R |= 0x2;
-			Clock_Delay1ms(100);
+			Clock_Delay(100);
 			
 			// sense columns
 			if (GPIO_PORTB_DATA_R & (1 << 4)){
 				// COL0 -> A
-				//SendString("A");
+				currentRow1 |= 0x1;
 			}
 			
 			if (GPIO_PORTB_DATA_R & (1 << 5)){
 				// COL1 -> S
-				//SendString("S");
+				currentRow1 |= 0x2;
 			}
 			
-			if (GPIO_PORTB_DATA_R & (1 << 5)){
+			if (GPIO_PORTB_DATA_R & (1 << 6)){
 				// COL2 -> D
-				//SendString("D");
+				currentRow1 |= 0x4;
 			}
 			
-			break;
-		case 2:
+			if ((currentRow1 & 0x1) != (lastRow1 & 0x1)){
+				if (currentRow1 & 0x1){
+					// Pressing 1,0 = A
+					PressKey('A');
+				} else {
+					// Releasing 1,0 = A
+					ReleaseKey('A');
+				}
+			}
+			
+			if ((currentRow1 & 0x2) != (lastRow1 & 0x2)){
+				if (currentRow1 & 0x2){
+					// Pressing 1,1 = S
+					PressKey('S');
+				} else {
+					// Releasing 1,1 = S
+					ReleaseKey('S');
+				}
+			}
+			
+			if ((currentRow1 & 0x4) != (lastRow1 & 0x4)){
+				if (currentRow1 & 0x4){
+					// Pressing 1,2 = D
+					PressKey('D');
+				} else {
+					// Releasing 1,2 = D
+					ReleaseKey('D');
+				}
+			}
+			
+			lastRow1 = currentRow1;
+			
+			GPIO_PORTF_DATA_R = 0;
+			Clock_Delay(100);
+			
 			// ROW2 - PF2
 			
 			// pulse row
 			GPIO_PORTF_DATA_R |= 0x4;
-			Clock_Delay1ms(100);
+			Clock_Delay(100);
 			
 			// sense columns
 			if (GPIO_PORTB_DATA_R & (1 << 4)){
 				// COL0 -> Z
-				//SendString("Z");
+				currentRow2 |= 0x1;
 			}
 			
 			if (GPIO_PORTB_DATA_R & (1 << 5)){
 				// COL1 -> X
-				//SendString("X");
+				currentRow2 |= 0x2;
 			}
 			
-			if (GPIO_PORTB_DATA_R & (1 << 5)){
+			if (GPIO_PORTB_DATA_R & (1 << 6)){
 				// COL2 -> C
-				//SendString("C");
+				currentRow2 |= 0x4;
 			}
 			
-			break;
-	}
+			if ((currentRow2 & 0x1) != (lastRow2 & 0x1)){
+				if (currentRow2 & 0x1){
+					// Pressing 2,0 = Z
+					PressKey('Z');
+				} else {
+					// Releasing 2,0 = Z
+					ReleaseKey('Z');
+				}
+			}
+			
+			if ((currentRow2 & 0x2) != (lastRow2 & 0x2)){
+				if (currentRow2 & 0x2){
+					// Pressing 2,1 = X
+					PressKey('X');
+				} else {
+					// Releasing 2,1 = X
+					ReleaseKey('X');
+				}
+			}
+			
+			if ((currentRow2 & 0x4) != (lastRow2 & 0x4)){
+				if (currentRow2 & 0x4){
+					// Pressing 2,2 = C
+					PressKey('C');
+				} else {
+					// Releasing 2,2 = C
+					ReleaseKey('C');
+				}
+			}
+			
+			lastRow2 = currentRow2;
+			
 	
-	GPIO_PORTF_DATA_R &= ~(1 + (1 << 1) + (1 << 2)); // clear pulse
+			GPIO_PORTF_DATA_R = 0;
+			Clock_Delay(100);
 	
-	if (++counter >= 3){
-		counter %= 3;
-	}
-	*/
 }
 
 
@@ -119,9 +207,9 @@ void Switch_Init(){
 	
 	GPIO_PORTB_DEN_R |= (1 << 4) + (1 << 5) + (1 << 6);
 	
-	GPIO_PORTF_DATA_R ^= 0x4;
+	GPIO_PORTF_DATA_R |= 0x8;
 	
-	Timer2A_Init(&Switch_Handler, 50000000, 4); // Poll at 100 Hz (3 cols)
+	Timer2A_Init(&Switch_Handler, 800000, 4); // Poll at 100 Hz (3 cols)
 }
 
 void Switch_Stop(){

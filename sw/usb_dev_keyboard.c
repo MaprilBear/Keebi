@@ -422,6 +422,62 @@ WaitForSendIdle(uint_fast32_t ui32TimeoutTicks)
     return(false);
 }
 
+void PressKey(char c){
+	if(g_bSuspended) {
+		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
+	}
+    
+	c -= ' ';
+   
+	//
+	// Send the key press message.
+	//
+	g_eKeyboardState = STATE_SENDING;
+	if(USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
+									 g_ppi8KeyUsageCodes[c][0],
+									 g_ppi8KeyUsageCodes[c][1],
+									 true) != KEYB_SUCCESS)
+	{
+		return;
+	}
+
+
+	if(!WaitForSendIdle(MAX_SEND_DELAY))
+	{
+		g_bConnected = 0;
+		return;
+	}
+
+}
+
+void ReleaseKey(char c){
+
+	if(g_bSuspended) {
+		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
+	}
+    
+	c -= ' ';
+   
+	//
+	// Send the key release message.
+	//
+	g_eKeyboardState = STATE_SENDING;
+	if(USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice, 0, g_ppi8KeyUsageCodes[c][1],false) != KEYB_SUCCESS)
+	{
+		return;
+	}
+
+	//
+	// Wait until the key release message has been sent.
+	//
+	if(!WaitForSendIdle(MAX_SEND_DELAY))
+	{
+		g_bConnected = 0;
+		return;
+	}
+
+}
+
 //*****************************************************************************
 //
 // Sends a string of characters via the USB HID keyboard interface.
@@ -599,7 +655,7 @@ main(void)
     //                   SYSCTL_XTAL_16MHZ);
 
 	PLL_Init(Bus80MHz);
-	Switch_Init();
+	
 
     //
     // Initialize the UART and display initial message.
@@ -684,10 +740,14 @@ main(void)
         //
         // Wait here until USB device is connected to a host.
         //
+		
+		Switch_Init();
+		
         while(!g_bConnected)
         {
 			//RGBInit(true);
         }
+		
 		
 		
 		
