@@ -120,7 +120,7 @@ examples/*/Keil/*.scvd
 *.pdsc
 *.plg
 # define exception below if needed
-*.sct
+#*.sct
 *.sfd
 *.sfr
 
