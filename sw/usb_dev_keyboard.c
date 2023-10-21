@@ -42,7 +42,7 @@
 #include "usblib/device/usbdevice.h"
 #include "usblib/device/usbdhid.h"
 #include "usblib/device/usbdhidkeyb.h"
-#include "drivers/buttons.h"
+#include "./drivers/buttons.h"
 #include "utils/uartstdio.h"
 #include "utils/ustdlib.h"
 #include "usb_keyb_structs.h"
