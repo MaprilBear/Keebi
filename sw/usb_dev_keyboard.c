@@ -637,16 +637,17 @@ ConfigureUART(void)
 int
 main(void)
 {	
-
+  PLL_Init(Bus80MHz);
+  
 	// Init UART with BGM220P
 	UART1_Init();
 	
 	// Init UART with USB DEBUG
 	UART_Init();
 	
-	UART_OutString("UART Debug connection established");
+	UART_OutString("UART Debug connection established\n");
 	
-	UART1_OutString("Hello BGM220P!\r");
+	UART1_OutString("Hello BGM220P!\n");
 	
 	while(true){
 		char buff[32] = "";
@@ -675,7 +676,7 @@ main(void)
     //MAP_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
     //                   SYSCTL_XTAL_16MHZ);
 
-	PLL_Init(Bus80MHz);
+	
 	
 
     //

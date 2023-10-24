@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include "UART1.h"
 
-#include "inc/tm4c123gh6pm.h"
+//#include "inc/tm4c123gh6pm.h"
 
 #define UART1_FR_TXFF            0x00000020  // UART Transmit FIFO Full
 #define UART1_FR_RXFE            0x00000010  // UART Receive FIFO Empty
@@ -34,13 +34,13 @@
 void UART1_Init(void){
 
   // Enable UART1
-  SYSCTL_RCGCUART_R               |= SYSCTL_RCGCUART_R5;
-  while((SYSCTL_PRUART_R & SYSCTL_PRUART_R5) == 0){};                 // Wait
+  SYSCTL_RCGCUART_R               |= SYSCTL_RCGCUART_R1;
+  while((SYSCTL_PRUART_R & SYSCTL_PRUART_R1) == 0){};                 // Wait
 
   // Enable PORT C clock gating
   
-  SYSCTL_RCGCGPIO_R               |= SYSCTL_RCGCGPIO_R3;
-  while((SYSCTL_PRGPIO_R & SYSCTL_PRGPIO_R2)){};                // allow time to finish activating
+  SYSCTL_RCGCGPIO_R               |= SYSCTL_RCGCGPIO_R2;
+  while((SYSCTL_PRGPIO_R & SYSCTL_PRGPIO_R2) == 0){};                // allow time to finish activating
 
   GPIO_PORTC_AMSEL_R              &= ~0x30;               // disable analog functionality PC{4:5}
   GPIO_PORTC_AFSEL_R              |=  0x30;               // Enable alt function for PC4 and PC5
