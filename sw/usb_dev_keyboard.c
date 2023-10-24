@@ -51,6 +51,8 @@
 #include "drivers/rgb.h"
 #include "inc/CortexM.h"
 #include "inc/PLL.h"
+#include "inc/UART1.h"
+#include "inc/UART.h"
 
 //*****************************************************************************
 //
@@ -636,6 +638,25 @@ int
 main(void)
 {	
 
+	// Init UART with BGM220P
+	UART1_Init();
+	
+	// Init UART with USB DEBUG
+	UART_Init();
+	
+	UART_OutString("UART Debug connection established");
+	
+	UART1_OutString("Hello BGM220P!\r");
+	
+	while(true){
+		char buff[32] = "";
+		UART1_InString(buff, 32);
+		if (*buff){
+			UART_OutString(buff);
+			*buff = 0;
+ 		}
+	}
+		
 	//DisableInterrupts();
 	
     uint_fast32_t ui32LastTickCount;
