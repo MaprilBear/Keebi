@@ -24,7 +24,7 @@ void Switch_Handler(){
 	
 			// ROW0 - PF0
 			
-			/*
+			
 			// pulse row
 			GPIO_PORTF_DATA_R |= 0x2;
 			Clock_Delay(100);
@@ -81,7 +81,7 @@ void Switch_Handler(){
 			GPIO_PORTF_DATA_R = 0;
 			Clock_Delay(100);
 			
-			*/
+			
 			// ROW1 - PF1
 			
 			// pulse row
@@ -140,7 +140,7 @@ void Switch_Handler(){
 			//Clock_Delay(100);
 			
 			// ROW2 - PF2
-			/*
+			
 			// pulse row
 			GPIO_PORTF_DATA_R |= 0x8;
 			Clock_Delay(100);
@@ -196,7 +196,7 @@ void Switch_Handler(){
 	
 			GPIO_PORTF_DATA_R = 0;
 			Clock_Delay(100);
-	*/
+	
 }
 
 

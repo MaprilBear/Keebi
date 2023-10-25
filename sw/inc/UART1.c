@@ -42,10 +42,9 @@ void UART1_Init(void){
   SYSCTL_RCGCGPIO_R               |= SYSCTL_RCGCGPIO_R2;
   while((SYSCTL_PRGPIO_R & SYSCTL_PRGPIO_R2) == 0){};                // allow time to finish activating
 
-  GPIO_PORTC_AMSEL_R              &= ~0x30;               // disable analog functionality PC{4:5}
-  GPIO_PORTC_AFSEL_R              |=  0x30;               // Enable alt function for PC4 and PC5
+  GPIO_PORTC_AFSEL_R              |=  (1 << 4) + (1 << 5);               // Enable alt function for PC4 and PC5
     
-  GPIO_PORTC_PCTL_R                = GPIO_PORTC_PCTL_R & ~(GPIO_PCTL_PC4_M | GPIO_PCTL_PC5_M); // clear PC4 and PC5 PCTL muxes
+  GPIO_PORTC_PCTL_R                &= ~(GPIO_PCTL_PC4_M | GPIO_PCTL_PC5_M); // clear PC4 and PC5 PCTL muxes
   GPIO_PORTC_PCTL_R				  |= GPIO_PCTL_PC4_U1RX | GPIO_PCTL_PC5_U1TX; // set muxes to UART1
 
   GPIO_PORTC_DIR_R                |=  (1 << 5);           // Set PC5 to OUTPUT

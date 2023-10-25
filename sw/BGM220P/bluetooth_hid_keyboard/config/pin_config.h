@@ -79,39 +79,39 @@
 // [TIMER4]$
 
 // $[USART0]
+// USART0 RX on PA06
+#ifndef USART0_RX_PORT                          
+#define USART0_RX_PORT                           gpioPortA
+#endif
+#ifndef USART0_RX_PIN                           
+#define USART0_RX_PIN                            6
+#endif
+
+// USART0 TX on PA05
+#ifndef USART0_TX_PORT                          
+#define USART0_TX_PORT                           gpioPortA
+#endif
+#ifndef USART0_TX_PIN                           
+#define USART0_TX_PIN                            5
+#endif
+
 // [USART0]$
 
 // $[USART1]
-// USART1 CTS on PA08
-#ifndef USART1_CTS_PORT                         
-#define USART1_CTS_PORT                          gpioPortA
-#endif
-#ifndef USART1_CTS_PIN                          
-#define USART1_CTS_PIN                           8
-#endif
-
-// USART1 RTS on PA07
-#ifndef USART1_RTS_PORT                         
-#define USART1_RTS_PORT                          gpioPortA
-#endif
-#ifndef USART1_RTS_PIN                          
-#define USART1_RTS_PIN                           7
-#endif
-
-// USART1 RX on PA06
+// USART1 RX on PB02
 #ifndef USART1_RX_PORT                          
-#define USART1_RX_PORT                           gpioPortA
+#define USART1_RX_PORT                           gpioPortB
 #endif
 #ifndef USART1_RX_PIN                           
-#define USART1_RX_PIN                            6
+#define USART1_RX_PIN                            2
 #endif
 
-// USART1 TX on PA05
+// USART1 TX on PB01
 #ifndef USART1_TX_PORT                          
-#define USART1_TX_PORT                           gpioPortA
+#define USART1_TX_PORT                           gpioPortB
 #endif
 #ifndef USART1_TX_PIN                           
-#define USART1_TX_PIN                            5
+#define USART1_TX_PIN                            1
 #endif
 
 // [USART1]$

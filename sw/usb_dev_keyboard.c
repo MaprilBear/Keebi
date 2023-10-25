@@ -638,7 +638,7 @@ int
 main(void)
 {	
   PLL_Init(Bus80MHz);
-  
+  /*
 	// Init UART with BGM220P
 	UART1_Init();
 	
@@ -650,14 +650,11 @@ main(void)
 	UART1_OutString("Hello BGM220P!\n");
 	
 	while(true){
-		char buff[32] = "";
-		UART1_InString(buff, 32);
-		if (*buff){
-			UART_OutString(buff);
-			*buff = 0;
- 		}
+		char buff[80] = "";
+		UART1_InString(buff, 80);
+		UART_OutString(buff);
 	}
-		
+		*/
 	//DisableInterrupts();
 	
     uint_fast32_t ui32LastTickCount;

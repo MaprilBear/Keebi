@@ -30,8 +30,8 @@ component:
   id: simple_button
 - {id: bluetooth_feature_gatt_server}
 - {id: bluetooth_feature_sm}
-- {id: bluetooth_feature_legacy_advertiser}
 - {id: mpu}
+- {id: bluetooth_feature_legacy_advertiser}
 - {id: gatt_configuration}
 - {id: gatt_service_device_information}
 - {id: bluetooth_stack}
@@ -43,7 +43,7 @@ component:
 - {id: app_log}
 - {id: bt_post_build}
 - {id: bluetooth_feature_connection}
-- instance: [vcom]
+- instance: [DEBUG, vcom]
   id: iostream_usart
 - {id: bluetooth_feature_system}
 - {id: component_catalog}

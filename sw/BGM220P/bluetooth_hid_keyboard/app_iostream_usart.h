@@ -28,4 +28,6 @@ void app_iostream_usart_init(void);
  ******************************************************************************/
 void app_iostream_usart_process_action(void);
 
+void UART_OutString(char* string);
+
 #endif  // APP_IOSTREAM_USART_H

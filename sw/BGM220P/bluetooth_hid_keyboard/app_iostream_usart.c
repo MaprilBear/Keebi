@@ -56,13 +56,17 @@ void app_iostream_usart_init(void)
   sl_iostream_write(sl_iostream_vcom_handle, str1, strlen(str1));
 
   /* Setting default stream */
-  sl_iostream_set_default(sl_iostream_vcom_handle);
-  const char str2[] = "This is output on the default stream\r\n";
+  sl_iostream_set_default(sl_iostream_DEBUG_handle);
+  const char str2[] = "This is output on the default DEBUG stream\r\n";
   sl_iostream_write(SL_IOSTREAM_STDOUT, str2, strlen(str2));
 
   /* Using printf */
-  /* Writing ASCII art to the VCOM iostream */
+  /* Writing ASCII art to the DEBUG iostream */
   printf("Printf uses the default stream, as long as iostream_retarget_stdio is included.\r\n");
+}
+
+void UART_OutString(char* string){
+  sl_iostream_write(sl_iostream_vcom_handle, string, strlen(string));
 }
 
 /***************************************************************************//**
@@ -70,23 +74,13 @@ void app_iostream_usart_init(void)
  ******************************************************************************/
 void app_iostream_usart_process_action(void)
 {
-
-
-
-
-  int8_t c = 0;
+  char c = 0;
   static uint8_t index = 0;
-  static bool print_welcome = true;
-
-  if (print_welcome) {
-    printf("> ");
-    print_welcome = false;
-  }
 
   /* Retrieve characters, print local echo and full line back */
-  c = getchar();
+  sl_iostream_getchar(sl_iostream_vcom_handle, &c);
   if (c > 0) {
-    if (c == '\r' || c == '\n') {
+    if (c == '\r' || c == '\n\r') {
       buffer[index] = '\0';
       printf("\r\nYou wrote: %s\r\n> ", buffer);
       index = 0;

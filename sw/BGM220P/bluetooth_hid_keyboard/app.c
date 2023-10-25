@@ -93,6 +93,8 @@ SL_WEAK void app_init(void)
 
   // Initialize our UART connection with the TM4C
   app_iostream_usart_init();
+
+  UART_OutString("Hello TM4C!");
 }
 
 /**************************************************************************//**
@@ -142,7 +144,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
         0);  // max. num. adv. events
       app_assert_status(sc);
 
-      app_log("boot event - starting advertising\r\n");
+
+      printf("boot event - starting advertising\r\n");
 
       sc = sl_bt_sm_configure(0, sm_io_capability_noinputnooutput);
       app_assert_status(sc);
@@ -158,7 +161,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     // This event indicates that a new connection was opened.
     case sl_bt_evt_connection_opened_id:
-      app_log("connection opened\r\n");
+      printf("connection opened\r\n");
       sc =
         sl_bt_sm_increase_security(evt->data.evt_connection_opened.connection);
       app_assert_status(sc);
@@ -167,7 +170,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     // This event indicates that a connection was closed.
     case sl_bt_evt_connection_closed_id:
-      app_log("connection closed, reason: 0x%2.2x\r\n",
+      printf("connection closed, reason: 0x%2.2x\r\n",
               evt->data.evt_connection_closed.reason);
       notification_enabled = 0;
       // Generate data for advertising
@@ -182,11 +185,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       break;
 
     case sl_bt_evt_sm_bonded_id:
-      app_log("successful bonding\r\n");
+      printf("successful bonding\r\n");
       break;
 
     case sl_bt_evt_sm_bonding_failed_id:
-      app_log("bonding failed, reason 0x%2X\r\n",
+      printf("bonding failed, reason 0x%2X\r\n",
               evt->data.evt_sm_bonding_failed.reason);
 
       /* Previous bond is broken, delete it and close connection,
@@ -224,7 +227,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
                                           input_report_data);
         app_assert_status(sc);
 
-        app_log("Key report was sent\r\n");
+        printf("Key report was sent\r\n");
       }
       break;
 
@@ -240,7 +243,7 @@ void sl_button_on_change(const sl_button_t *handle)
   if (&sl_button_btn0 == handle) {
     if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
       actual_key = reduced_key_array[counter];
-      app_log("Button pushed - callback\r\n");
+      printf("Button pushed - callback\r\n");
     } else {
       if (KEY_ARRAY_SIZE == counter) {
         counter = 0;
@@ -249,7 +252,7 @@ void sl_button_on_change(const sl_button_t *handle)
       }
 
       actual_key = 0;
-      app_log("Button released - callback \r\n");
+      printf("Button released - callback \r\n");
     }
   }
 

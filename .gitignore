@@ -153,3 +153,5 @@ sw/BGM220P/.browser/
 sw/BGM220P/.metadata/
 
 sw/BGM220P/outgoing/
+
+sw/BGM220P/bluetooth_hid_keyboard/autogen/
