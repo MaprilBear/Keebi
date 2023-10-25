@@ -42,10 +42,17 @@
 #include "usblib/device/usbdevice.h"
 #include "usblib/device/usbdhid.h"
 #include "usblib/device/usbdhidkeyb.h"
-#include "drivers/buttons.h"
+#include "./drivers/buttons.h"
 #include "utils/uartstdio.h"
 #include "utils/ustdlib.h"
 #include "usb_keyb_structs.h"
+
+#include "Switch_Matrix.h"
+#include "drivers/rgb.h"
+#include "inc/CortexM.h"
+#include "inc/PLL.h"
+#include "inc/UART1.h"
+#include "inc/UART.h"
 
 //*****************************************************************************
 //
@@ -417,6 +424,62 @@ WaitForSendIdle(uint_fast32_t ui32TimeoutTicks)
     return(false);
 }
 
+void PressKey(char c){
+	if(g_bSuspended) {
+		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
+	}
+    
+	c -= ' ';
+   
+	//
+	// Send the key press message.
+	//
+	g_eKeyboardState = STATE_SENDING;
+	if(USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
+									 g_ppi8KeyUsageCodes[c][0],
+									 g_ppi8KeyUsageCodes[c][1],
+									 true) != KEYB_SUCCESS)
+	{
+		return;
+	}
+
+
+	if(!WaitForSendIdle(MAX_SEND_DELAY))
+	{
+		g_bConnected = 0;
+		return;
+	}
+
+}
+
+void ReleaseKey(char c){
+
+	if(g_bSuspended) {
+		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
+	}
+    
+	c -= ' ';
+   
+	//
+	// Send the key release message.
+	//
+	g_eKeyboardState = STATE_SENDING;
+	if(USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice, 0, g_ppi8KeyUsageCodes[c][1],false) != KEYB_SUCCESS)
+	{
+		return;
+	}
+
+	//
+	// Wait until the key release message has been sent.
+	//
+	if(!WaitForSendIdle(MAX_SEND_DELAY))
+	{
+		g_bConnected = 0;
+		return;
+	}
+
+}
+
 //*****************************************************************************
 //
 // Sends a string of characters via the USB HID keyboard interface.
@@ -425,6 +488,12 @@ WaitForSendIdle(uint_fast32_t ui32TimeoutTicks)
 void
 SendString(char *pcStr)
 {
+
+	if(g_bSuspended)
+	{
+		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
+	}
+
     uint32_t ui32Char;
 
     //
@@ -567,7 +636,27 @@ ConfigureUART(void)
 //*****************************************************************************
 int
 main(void)
-{
+{	
+  PLL_Init(Bus80MHz);
+  /*
+	// Init UART with BGM220P
+	UART1_Init();
+	
+	// Init UART with USB DEBUG
+	UART_Init();
+	
+	UART_OutString("UART Debug connection established\n");
+	
+	UART1_OutString("Hello BGM220P!\n");
+	
+	while(true){
+		char buff[80] = "";
+		UART1_InString(buff, 80);
+		UART_OutString(buff);
+	}
+		*/
+	//DisableInterrupts();
+	
     uint_fast32_t ui32LastTickCount;
     bool bLastSuspend;
 
@@ -576,19 +665,22 @@ main(void)
     // instructions to be used within interrupt handlers, but at the expense of
     // extra stack usage.
     //
-    MAP_FPULazyStackingEnable();
+    //MAP_FPULazyStackingEnable();
 
     //
     // Set the clocking to run from the PLL at 50MHz.
     //
-    MAP_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
-                       SYSCTL_XTAL_16MHZ);
+    //MAP_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
+    //                   SYSCTL_XTAL_16MHZ);
+
+	
+	
 
     //
     // Initialize the UART and display initial message.
     //
-    ConfigureUART();
-    UARTprintf("usb-dev-keyboard example\n\r");
+    //ConfigureUART();
+    //UARTprintf("usb-dev-keyboard example\n\r");
 
     //
     // Configure the required pins for USB operation.
@@ -607,14 +699,14 @@ main(void)
     //
     // Enable the GPIO that is used for the on-board LED.
     //
-    MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-    MAP_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
-    MAP_GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0);
+    //MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+    //MAP_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
+    //MAP_GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0);
 
     //
     // Initialize the buttons driver.
     //
-    ButtonsInit();
+    //ButtonsInit();
 
     //
     // Not configured initially.
@@ -641,31 +733,47 @@ main(void)
     //
     // Set the system tick to fire 100 times per second.
     //
-    MAP_SysTickPeriodSet(MAP_SysCtlClockGet() / SYSTICKS_PER_SECOND);
-    MAP_SysTickIntEnable();
-    MAP_SysTickEnable();
+    //MAP_SysTickPeriodSet(MAP_SysCtlClockGet() / SYSTICKS_PER_SECOND);
+    //MAP_SysTickIntEnable();
+    //MAP_SysTickEnable();
+
+     // EnableInterrupts();
 
     //
     // The main loop starts here.  We begin by waiting for a host connection
     // then drop into the main keyboard handling section.  If the host
     // disconnects, we return to the top and wait for a new connection.
     //
+	
+	
+	
     while(1)
     {
+		/*
         uint8_t ui8Buttons;
         uint8_t ui8ButtonsChanged;
 
         UARTprintf("Waiting for host...\n\r");
+		*/
 
         //
         // Wait here until USB device is connected to a host.
         //
+		
+		Switch_Init();
+		
         while(!g_bConnected)
         {
+			//RGBInit(true);
         }
-
+		
+		
+		
+		
+		/*
         UARTprintf("Host connected.\n\r");
         UARTprintf("Now press any button.\n\r");
+		*/
 
         //
         // Enter the idle state.
@@ -678,85 +786,12 @@ main(void)
         //
         bLastSuspend = false;
 
-        //
-        // Keep transferring characters from the UART to the USB host for as
-        // long as we are connected to the host.
-        //
+
         while(g_bConnected)
         {
-            //
-            // Remember the current time.
-            //
-            ui32LastTickCount = g_ui32SysTickCount;
-
-            //
-            // Has the suspend state changed since last time we checked?
-            //
-            if(bLastSuspend != g_bSuspended)
-            {
-                //
-                // Yes, update the state on the terminal.
-                //
-                bLastSuspend = g_bSuspended;
-                if(bLastSuspend)
-                {
-                    UARTprintf("Bus suspended ...\n\r");
-                }
-                else
-                {
-                    UARTprintf("Host connected ...\n\r");
-                }
-            }
-
-            //
-            // See if the button was just pressed.
-            //
-            ui8Buttons = ButtonsPoll(&ui8ButtonsChanged, 0);
-            if(BUTTON_PRESSED(LEFT_BUTTON, ui8Buttons,
-                              ui8ButtonsChanged))
-            {
-                //
-                // If the bus is suspended then resume it.  Otherwise, type
-                // out an instructional message.
-                //
-                if(g_bSuspended)
-                {
-                    USBDHIDKeyboardRemoteWakeupRequest(
-                                                   (void *)&g_sKeyboardDevice);
-                }
-                else
-                {
-                    SendString("You have pressed the SW1 button.\n"
-                               "Try pressing the SW2 button.\n\n");
-                }
-            }
-            else if(BUTTON_PRESSED(RIGHT_BUTTON, ui8Buttons,
-                                   ui8ButtonsChanged))
-            {
-                //
-                // If the bus is suspended then resume it.  Otherwise, type
-                // out an instructional message.
-                //
-                if(g_bSuspended)
-                {
-                    USBDHIDKeyboardRemoteWakeupRequest(
-                                                   (void *)&g_sKeyboardDevice);
-                }
-                else
-                {
-                    SendString("You have pressed the SW2 button.\n"
-                               "Try pressing the Caps Lock key on your "
-                               "keyboard and then press either button.\n\n");
-                }
-            }
-
-            //
-            // Wait for at least 1 system tick to have gone by before we poll
-            // the buttons again.
-            //
-            while(g_ui32SysTickCount == ui32LastTickCount)
-            {
-            }
+            
         }
+		
+	
     }
 }

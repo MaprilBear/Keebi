@@ -81,6 +81,7 @@ __heap_limit
         EXTERN  SysTickIntHandler
         EXTERN  UARTStdioIntHandler
         EXTERN  USB0DeviceIntHandler
+		EXTERN  Timer2A_Handler
 
 ;******************************************************************************
 ;
@@ -128,7 +129,7 @@ __Vectors
         DCD     IntDefaultHandler           ; Timer 0 subtimer B
         DCD     IntDefaultHandler           ; Timer 1 subtimer A
         DCD     IntDefaultHandler           ; Timer 1 subtimer B
-        DCD     IntDefaultHandler           ; Timer 2 subtimer A
+        DCD     Timer2A_Handler           ; Timer 2 subtimer A
         DCD     IntDefaultHandler           ; Timer 2 subtimer B
         DCD     IntDefaultHandler           ; Analog Comparator 0
         DCD     IntDefaultHandler           ; Analog Comparator 1

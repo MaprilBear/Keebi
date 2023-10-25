@@ -120,7 +120,7 @@ examples/*/Keil/*.scvd
 *.pdsc
 *.plg
 # define exception below if needed
-*.sct
+#*.sct
 *.sfd
 *.sfr
 
@@ -148,3 +148,10 @@ RemoteSystemsTempFiles/
 
 # API autogen documentation.
 resources/Documentation
+sw/BGM220P/.browser/
+
+sw/BGM220P/.metadata/
+
+sw/BGM220P/outgoing/
+
+sw/BGM220P/bluetooth_hid_keyboard/autogen/

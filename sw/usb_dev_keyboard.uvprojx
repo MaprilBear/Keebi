@@ -137,7 +137,7 @@
             <DriverSelection>4099</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
-          <Flash2>BIN\lmidk-agdi.dll</Flash2>
+          <Flash2>BIN\UL2CM3.DLL</Flash2>
           <Flash3></Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
@@ -189,7 +189,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>1</useUlib>
+            <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -339,7 +339,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>rvmdk PART_TM4C123GH6PM TARGET_IS_TM4C123_RB1 UART_BUFFERED</Define>
               <Undefine></Undefine>
-              <IncludePath>..;..\..\..\..</IncludePath>
+              <IncludePath>C:\ti\TivaWare_C_Series-2.2.0.295</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -370,7 +370,7 @@
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>usb_dev_keyboard.sct</ScatterFile>
+            <ScatterFile>.\usb_dev_keyboard.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--entry Reset_Handler</Misc>
@@ -384,19 +384,9 @@
           <GroupName>Source</GroupName>
           <Files>
             <File>
-              <FileName>buttons.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\drivers\buttons.c</FilePath>
-            </File>
-            <File>
-              <FileName>startup_rvmdk.S</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\startup_rvmdk.S</FilePath>
-            </File>
-            <File>
               <FileName>uartstdio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\utils\uartstdio.c</FilePath>
+              <FilePath>C:\ti\TivaWare_C_Series-2.2.0.295\utils\uartstdio.c</FilePath>
             </File>
             <File>
               <FileName>usb_dev_keyboard.c</FileName>
@@ -409,19 +399,34 @@
               <FilePath>.\usb_keyb_structs.c</FilePath>
             </File>
             <File>
-              <FileName>rgb.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>C:\Repositories\ece-445l-final-project-ad_jm_mj_ew\sw\src\rgb.h</FilePath>
-            </File>
-            <File>
-              <FileName>buttons.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>C:\Repositories\ece-445l-final-project-ad_jm_mj_ew\sw\src\buttons.h</FilePath>
+              <FileName>buttons.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\drivers\buttons.c</FilePath>
             </File>
             <File>
               <FileName>rgb.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:\Repositories\ece-445l-final-project-ad_jm_mj_ew\sw\src\rgb.c</FilePath>
+              <FilePath>.\drivers\rgb.c</FilePath>
+            </File>
+            <File>
+              <FileName>Switch_Matrix.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Switch_Matrix.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_dev_keyboard.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\usb_dev_keyboard.h</FilePath>
+            </File>
+            <File>
+              <FileName>Switch_Matrix.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Switch_Matrix.h</FilePath>
+            </File>
+            <File>
+              <FileName>startup_rvmdk.S</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\startup_rvmdk.S</FilePath>
             </File>
           </Files>
         </Group>
@@ -431,12 +436,12 @@
             <File>
               <FileName>driverlib.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\driverlib\rvmdk\driverlib.lib</FilePath>
+              <FilePath>C:\ti\TivaWare_C_Series-2.2.0.295\driverlib\rvmdk\driverlib.lib</FilePath>
             </File>
             <File>
               <FileName>usblib.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\usblib\rvmdk\usblib.lib</FilePath>
+              <FilePath>C:\ti\TivaWare_C_Series-2.2.0.295\usblib\rvmdk\usblib.lib</FilePath>
             </File>
           </Files>
         </Group>
@@ -447,6 +452,51 @@
               <FileName>readme.txt</FileName>
               <FileType>5</FileType>
               <FilePath>.\readme.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Include</GroupName>
+          <Files>
+            <File>
+              <FileName>Timer0A.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\Timer0A.c</FilePath>
+            </File>
+            <File>
+              <FileName>CortexM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\CortexM.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer1A.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\Timer1A.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer2A.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\Timer2A.c</FilePath>
+            </File>
+            <File>
+              <FileName>PLL.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\PLL.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\UART5.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\UART.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\UART1.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -469,5 +519,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>usb_dev_keyboard</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>
