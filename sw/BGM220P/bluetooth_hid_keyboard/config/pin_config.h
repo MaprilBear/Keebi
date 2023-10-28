@@ -157,6 +157,13 @@
 // [MODEM]$
 
 // $[CUSTOM_PIN_NAME]
+#ifndef STATUS_LED_PORT                         
+#define STATUS_LED_PORT                          gpioPortB
+#endif
+#ifndef STATUS_LED_PIN                          
+#define STATUS_LED_PIN                           3
+#endif
+
 // [CUSTOM_PIN_NAME]$
 
 #endif // PIN_CONFIG_H

@@ -1,4 +1,7 @@
 (sym_lib_table
   (version 7)
-  (lib (name "BA1AAPC")(type "KiCad")(uri "C:/Users/Matija/Documents/ECE445L/Lab1/ece-445l-final-project-ad_jm_mj_ew/hw/Libraries/BA1AAPC/BA1AAPC.kicad_sym")(options "")(descr ""))
+  (lib (name "BA1AAPC")(type "KiCad")(uri "${KIPRJMOD}/Libraries/BA1AAPC/BA1AAPC.kicad_sym")(options "")(descr ""))
+  (lib (name "BGM220P")(type "KiCad")(uri "${KIPRJMOD}/Libraries/LIB_BGM220PC22HNA2R/BGM220PC22HNA2R/KiCad/BGM220PC22HNA2R.kicad_sym")(options "")(descr ""))
+  (lib (name "NX5032GA")(type "KiCad")(uri "${KIPRJMOD}/Libraries/LIB_NX5032GA-16.000M-LN-CD-1/NX5032GA-16.000M-LN-CD-1/KiCad/NX5032GA-16_000M-LN-CD-1.kicad_sym")(options "")(descr ""))
+  (lib (name "TPS2113A")(type "KiCad")(uri "${KIPRJMOD}/Libraries/LIB_TPS2113ADRBR/TPS2113ADRBR/KiCad/TPS2113ADRBR.kicad_sym")(options "")(descr ""))
 )

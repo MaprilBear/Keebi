@@ -36,6 +36,7 @@
 #include "gatt_db.h"
 #include "sl_simple_button_instances.h"
 #include "app_iostream_usart.h"
+#include "sl_simple_led_instances.h";
 
 #define KEY_ARRAY_SIZE         25
 #define MODIFIER_INDEX         0
@@ -93,6 +94,10 @@ SL_WEAK void app_init(void)
 
   // Initialize our UART connection with the TM4C
   app_iostream_usart_init();
+
+  sl_simple_led_init_instances();
+
+  sl_led_turn_on(&sl_led_status_led);
 
   UART_OutString("Hello TM4C!");
 }

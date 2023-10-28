@@ -30,10 +30,12 @@ component:
   id: simple_button
 - {id: bluetooth_feature_gatt_server}
 - {id: bluetooth_feature_sm}
-- {id: mpu}
 - {id: bluetooth_feature_legacy_advertiser}
+- {id: mpu}
 - {id: gatt_configuration}
 - {id: gatt_service_device_information}
+- instance: [status_led]
+  id: simple_led
 - {id: bluetooth_stack}
 - {id: rail_util_pti}
 - {id: bluetooth_feature_gatt}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <model:MDescriptors xmlns:model="http://www.silabs.com/ss/Studio.ecore">
   <descriptors name="bluetooth_hid_keyboard">
-    <properties key="projectCommon.sdkId" value="com.silabs.sdk.stack.super:4.3.2._-784576171"/>
+    <properties key="projectCommon.sdkId" value="com.silabs.sdk.stack.super:4.3.2._-727816654"/>
     <properties key="universalConfig.generationDirectory" value=""/>
     <properties key="universalConfig.relativeWorkspacePath" value="..\bluetooth_hid_keyboard.slcw"/>
     <properties key="universalConfig.toolchainCompatibility" value="iar gcc"/>
