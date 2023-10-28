@@ -5,4 +5,5 @@
   (lib (name "keyboard_parts.pretty-master")(type "KiCad")(uri "C:/Users/Matija/Documents/ECE445L/Lab1/ece-445l-final-project-ad_jm_mj_ew/hw/Libraries/keyboard_parts.pretty-master/keyboard_parts.pretty-master")(options "")(descr ""))
   (lib (name "CrystalLibrary")(type "KiCad")(uri "${KIPRJMOD}/CrystalLibrary.pretty")(options "")(descr ""))
   (lib (name "SwitchingICLibrary")(type "KiCad")(uri "${KIPRJMOD}/SwitchingICLibrary.pretty")(options "")(descr ""))
+  (lib (name "BluetoothModuleLibrary")(type "KiCad")(uri "${KIPRJMOD}/BluetoothModuleLibrary.pretty")(options "")(descr ""))
 )
