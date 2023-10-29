@@ -10,4 +10,5 @@
   (lib (name "TM4C")(type "KiCad")(uri "${KIPRJMOD}/Libraries/TM4C123GH6PMIR/KiCad")(options "")(descr ""))
   (lib (name "Keebio-Parts.pretty-master")(type "KiCad")(uri "${KIPRJMOD}/Libraries/Keebio-Parts.pretty-master")(options "")(descr ""))
   (lib (name "MX_Hotswap")(type "KiCad")(uri "${KIPRJMOD}/Libraries/MX_Hotswap.pretty")(options "")(descr ""))
+  (lib (name "SLW-121586-5A-D")(type "KiCad")(uri "${KIPRJMOD}/Libraries/SLW-121586-5A-D/KiCad")(options "")(descr ""))
 )
