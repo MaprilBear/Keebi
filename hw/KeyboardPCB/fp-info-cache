@@ -1,4 +1,4 @@
-22720038022905672
+22725221584546134
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -87643,6 +87643,27 @@ TM4C
 QFP50P1200X1200X160-64N
 TM4C123GH6PMIR-1
 Integrated Circuit
+0
+64
+64
+TM4C123GH6PM
+PM0064A_L
+
+TM4C123GH6PMI7 
+0
+64
+64
+TM4C123GH6PM
+PM0064A_M
+
+TM4C123GH6PMI7 
+0
+64
+64
+TM4C123GH6PM
+PM0064A_N
+
+TM4C123GH6PMI7 
 0
 64
 64
