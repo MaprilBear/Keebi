@@ -38,7 +38,7 @@
 #include "driverlib/systick.h"
 #include "driverlib/uart.h"
 #include "usblib/usblib.h"
-#include "usblib/usbhid.h"
+  
 #include "usblib/device/usbdevice.h"
 #include "usblib/device/usbdhid.h"
 #include "usblib/device/usbdhidkeyb.h"
@@ -186,6 +186,18 @@ static const int8_t g_ppi8KeyUsageCodes[][2] =
     { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_BSLASH },    // | 0x7c
     { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_RBRACKET },  // } 0x7d
     { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_BQUOTE },    // ~ 0x7e
+    { 0, HID_KEYB_USAGE_F1},                           // F1 x7f
+    { 0, HID_KEYB_USAGE_F2},                           // F2 x7f
+    { 0, HID_KEYB_USAGE_F3},                           // F3 x7f
+    { 0, HID_KEYB_USAGE_F4},                           // F4 x7f
+    { 0, HID_KEYB_USAGE_F5},                           // F5 x7f
+    { 0, HID_KEYB_USAGE_F6},                           // F6 x7f
+    { 0, HID_KEYB_USAGE_F7},                           // F7 x7f
+    { 0, HID_KEYB_USAGE_F8},                           // F8 x7f
+    { 0, HID_KEYB_USAGE_F9},                           // F9 x7f
+    { 0, HID_KEYB_USAGE_F10},                           // F10 x7f
+    { 0, HID_KEYB_USAGE_F11},                           // F11 x7f
+    { 0, HID_KEYB_USAGE_F12},                           // F12 x7f
     //
     // Add characters outside of 0x20-0x7e here to avoid breaking the table
     // lookup calculations.
@@ -424,6 +436,8 @@ WaitForSendIdle(uint_fast32_t ui32TimeoutTicks)
     return(false);
 }
 
+// need to keep a modifier list 
+
 void PressKey(char c){
 	if(g_bSuspended) {
 		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
@@ -634,10 +648,39 @@ ConfigureUART(void)
 // This is the main loop that runs the application.
 //
 //*****************************************************************************
+int main2(void){
+PLL_Init(Bus80MHz);
+  
+  // Initialize and turn on capslock LED (PD1, active low)
+  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R3;
+  while(!(SYSCTL_PRGPIO_R & SYSCTL_RCGCGPIO_R3)){}
+  
+  GPIO_PORTD_DIR_R |= 0x2;
+  GPIO_PORTD_PUR_R |= 0x2;
+  GPIO_PORTD_DEN_R |= 0x2;
+  
+  GPIO_PORTD_DATA_R &= ~0x2;
+    
+  while(true){}
+}
+
 int
 main(void)
 {	
   PLL_Init(Bus80MHz);
+  
+  // Initialize and turn on capslock LED (PD1, active low)
+  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R3;
+  while(!(SYSCTL_PRGPIO_R & SYSCTL_RCGCGPIO_R3)){}
+  
+  GPIO_PORTD_DIR_R |= 0x2;
+  GPIO_PORTD_PUR_R |= 0x2;
+  GPIO_PORTD_DEN_R |= 0x2;
+  
+  GPIO_PORTD_DATA_R &= ~0x2;
+    
+Q
+  
   /*
 	// Init UART with BGM220P
 	UART1_Init();

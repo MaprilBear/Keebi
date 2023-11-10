@@ -3,83 +3,76 @@
 #include "inc/Unified_Port_Init.h"
 #include "inc/CortexM.h"
 #include "usb_dev_keyboard.h"
+#include "Switch_Matrix.h"
 
-#define ROW0 PF0
-#define ROW1 PF1
-#define ROW2 PF2
-#define COL0 PB4
-#define COL1 PB5
-#define COL2 PB6
+#define ROW0 PF3
+#define ROW1 PF2
+#define ROW2 PF1
+#define ROW3 PF0
+#define ROW4 PC3 // TDO, must unlock
 
-uint8_t lastRow0 = 0;
-uint8_t lastRow1 = 0;
-uint8_t lastRow2 = 0;
+
+#define COL0 PC6
+#define COL1 PC7
+#define COL2 PD7
+#define COL3 PE0
+#define COL4 PE1
+#define COL5 PE2
+#define COL6 PE3
+#define COL7 PF4
+#define COL8 PB7
+#define COL9 PB6
+#define COL10 PE5
+#define COL11 PE4
+#define COL12 PB4
+#define COL13 PB5
+
+uint8_t modifier = 0;
+
+uint16_t lastRow0 = 0;
+uint16_t lastRow1 = 0;
+uint16_t lastRow2 = 0;
+uint16_t lastRow3 = 0;
+uint16_t lastRow4 = 0;
 
 void Switch_Handler(){
 	static short counter = 0;
 	
-	uint8_t currentRow0 = 0;
-	uint8_t currentRow1 = 0;
-	uint8_t currentRow2 = 0;
+	uint16_t currentRow0 = 0;
+	uint16_t currentRow1 = 0;
+	uint16_t currentRow2 = 0;
+  uint16_t currentRow3 = 0;
+  uint16_t currentRow4 = 0;
 	
-			// ROW0 - PF0
-			
+			// ROW0 - PF3
 			
 			// pulse row
-			GPIO_PORTF_DATA_R |= 0x2;
+			GPIO_PORTF_DATA_R |= (1 << 3);
 			Clock_Delay(100);
 			
 			// sense columns
-			if (GPIO_PORTB_DATA_R & (1 << 4)){
-				// COL0 -> Q
-				currentRow0 |= 0x1;
-			}
-			
-			if (GPIO_PORTB_DATA_R & (1 << 5)){
-				// COL1 -> W
-				currentRow0 |= 0x2;
-			}
-			
-			if (GPIO_PORTB_DATA_R & (1 << 6)){
-				// COL2 -> E
-				currentRow0 |= 0x4;
-			}
-			
-			if ((currentRow0 & 0x1) != (lastRow0 & 0x1)){
-				if (currentRow0 & 0x1){
-					// Pressing 0,0 = Q
-					PressKey('Q');
-				} else {
-					// Releasing 0,0 = Q
-					ReleaseKey('Q');
-				}
-			}
-			
-			if ((currentRow0 & 0x2) != (lastRow0 & 0x2)){
-				if (currentRow0 & 0x2){
-					// Pressing 0,1 = W
-					PressKey('W');
-				} else {
-					// Releasing 0,1 = W
-					ReleaseKey('W');
-				}
-			}
-			
-			if ((currentRow0 & 0x4) != (lastRow0 & 0x4)){
-				if (currentRow0 & 0x4){
-					// Pressing 0,2 = E
-					PressKey('E');
-				} else {
-					// Releasing 0,2 = E
-					ReleaseKey('E');
-				}
-			}
-			
-			lastRow0 = currentRow0;
-			
-			
-			GPIO_PORTF_DATA_R = 0;
-			Clock_Delay(100);
+      currentRow0 = (!!COL0) + (!!COL1 << 1) + (!!COL2 << 2) + (!!COL3 << 3) 
+                    + (!!COL4 << 4) + (!!COL5 << 5) + (!!COL6 << 6) + (!!COL7 << 7) 
+                    + (!!COL8 << 8) + (!!COL9 << 9) + (!!COL10 << 10) + (!!COL11 << 11)
+                    + (!!COL12 << 12) + (!!COL13 << 13);
+  
+      for (int i = 0; i < 14; i++){
+          uint8_t current = !!(currentRow0 & (1 << i));
+          uint8_t prev = !!(lastRow0 & (1 << i));
+        
+          if (current != prev){
+            if (current){
+              // Now on, key press
+              PressKey(KeyboardMatrix[modifier][0][i]);
+            } else {
+              // Now off, key released
+              ReleaseKey(KeyboardMatrix[modifier][0][i]);
+            }
+          }
+      }
+  
+      /*
+			Clock_Delay(10000);
 			
 			
 			// ROW1 - PF1
@@ -137,12 +130,12 @@ void Switch_Handler(){
 			lastRow1 = currentRow1;
 			
 			GPIO_PORTF_DATA_R = 0;
-			//Clock_Delay(100);
+			Clock_Delay(100);
 			
 			// ROW2 - PF2
 			
 			// pulse row
-			GPIO_PORTF_DATA_R |= 0x8;
+			GPIO_PORTF_DATA_R |= 0x1;
 			Clock_Delay(100);
 			
 			// sense columns
@@ -195,6 +188,7 @@ void Switch_Handler(){
 			
 	
 			GPIO_PORTF_DATA_R = 0;
+      */
 			Clock_Delay(100);
 	
 }
