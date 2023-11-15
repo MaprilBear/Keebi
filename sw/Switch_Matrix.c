@@ -87,6 +87,44 @@ void Switch_Handler(){
             }
           }
       }
+      
+      // End pulse
+      lastRow0 = currentRow0;
+      GPIO_PORTF_DATA_R = 0;
+      Clock_Delay(100);
+      
+      
+			// ROW1 - PF2
+			
+			// pulse row
+			GPIO_PORTF_DATA_R |= (1 << 2);
+			Clock_Delay(100);
+			
+			// sense columns
+      currentRow1 = (!!COL0) + (!!COL1 << 1) + (!!COL2 << 2) + (!!COL3 << 3) 
+                    + (!!COL4 << 4) + (!!COL5 << 5) + (!!COL6 << 6) + (!!COL7 << 7) 
+                    + (!!COL8 << 8) + (!!COL9 << 9) + (!!COL10 << 10) + (!!COL11 << 11)
+                    + (!!COL12 << 12) + (!!COL13 << 13);
+  
+      for (int i = 0; i < 14; i++){
+          uint8_t current = !!(currentRow1 & (1 << i));
+          uint8_t prev = !!(lastRow0 & (1 << i));
+        
+          if (current != prev){
+            if (current){
+              // Now on, key press
+              PressKey(KeyboardMatrix[modifier][1][i]);
+            } else {
+              // Now off, key released
+              ReleaseKey(KeyboardMatrix[modifier][1][i]);
+            }
+          }
+      }
+      
+      // End pulse
+      lastRow1 = currentRow1;
+      GPIO_PORTF_DATA_R = 0;
+      Clock_Delay(100);
   
       /*
 			Clock_Delay(10000);

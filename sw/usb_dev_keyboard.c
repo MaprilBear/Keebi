@@ -47,13 +47,15 @@
 #include "utils/uartstdio.h"
 #include "utils/ustdlib.h"
 #include "usb_keyb_structs.h"
+#include "usblib/usbhid.h"
 
-#include "Switch_Matrix.h"
+
 #include "drivers/rgb.h"
 #include "inc/CortexM.h"
 #include "inc/PLL.h"
 #include "inc/UART1.h"
 #include "inc/UART.h"
+#include "Switch_Matrix.h"
 
 //*****************************************************************************
 //
@@ -439,24 +441,39 @@ WaitForSendIdle(uint_fast32_t ui32TimeoutTicks)
 
 // need to keep a modifier list 
 
-void PressKey(char c){
+uint8_t modifierFlags = 0;
+
+void PressKey(uint8_t c){
 	if(g_bSuspended) {
 		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
 	}
-    
-	c -= ' ';
    
 	//
 	// Send the key press message.
 	//
-	g_eKeyboardState = STATE_SENDING;
-	if(USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-									 g_ppi8KeyUsageCodes[c][0],
-									 g_ppi8KeyUsageCodes[c][1],
-									 true) != KEYB_SUCCESS)
-	{
-		return;
-	}
+  
+  g_eKeyboardState = STATE_SENDING;
+  switch (c){
+    case HID_KEYB_LEFT_SHIFT:
+    case HID_KEYB_RIGHT_SHIFT:
+    case HID_KEYB_LEFT_CTRL:
+    case HID_KEYB_RIGHT_CTRL:
+    case HID_KEYB_LEFT_ALT:
+    case HID_KEYB_RIGHT_ALT:
+    case HID_KEYB_LEFT_GUI:
+    case HID_KEYB_RIGHT_GUI:
+      modifierFlags |= c;
+      USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
+									 modifierFlags,
+									 HID_KEYB_USAGE_RESERVED,
+									 true);
+    break;
+    default:
+      USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
+									 modifierFlags,
+									 c,
+									 true);
+  }
 
 
 	if(!WaitForSendIdle(MAX_SEND_DELAY))
@@ -467,23 +484,38 @@ void PressKey(char c){
 
 }
 
-void ReleaseKey(char c){
+void ReleaseKey(uint8_t c){
 
 	if(g_bSuspended) {
 		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
 	}
-    
-	c -= ' ';
    
 	//
 	// Send the key release message.
 	//
-	g_eKeyboardState = STATE_SENDING;
-	if(USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice, 0, g_ppi8KeyUsageCodes[c][1],false) != KEYB_SUCCESS)
-	{
-		return;
-	}
-
+  
+   g_eKeyboardState = STATE_SENDING;
+  switch (c){
+    case HID_KEYB_LEFT_SHIFT:
+    case HID_KEYB_RIGHT_SHIFT:
+    case HID_KEYB_LEFT_CTRL:
+    case HID_KEYB_RIGHT_CTRL:
+    case HID_KEYB_LEFT_ALT:
+    case HID_KEYB_RIGHT_ALT:
+    case HID_KEYB_LEFT_GUI:
+    case HID_KEYB_RIGHT_GUI:
+      modifierFlags &= ~c;
+      USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
+									 modifierFlags,
+									 HID_KEYB_USAGE_RESERVED,
+									 false);
+    break;
+    default:
+      USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
+									 modifierFlags,
+									 c,
+									 false);
+    }
 	//
 	// Wait until the key release message has been sent.
 	//
