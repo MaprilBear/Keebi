@@ -4,6 +4,7 @@
 #include "inc/CortexM.h"
 #include "usb_dev_keyboard.h"
 #include "Switch_Matrix.h"
+#include <stdbool.h>
 
 #define ROW0 PF3
 #define ROW1 PF2
@@ -68,14 +69,15 @@ void Switch_Handler(){
 			Clock_Delay(100);
 			
 			// sense columns
-      currentRow0 = (!!COL0) + (!!COL1 << 1) + (!!COL2 << 2) + (!!COL3 << 3) 
-                    + (!!COL4 << 4) + (!!COL5 << 5) + (!!COL6 << 6) + (!!COL7 << 7) 
-                    + (!!COL8 << 8) + (!!COL9 << 9) + (!!COL10 << 10) + (!!COL11 << 11)
-                    + (!!COL12 << 12) + (!!COL13 << 13);
+ 
+      currentRow0 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 
+                    + ((bool)COL4 << 4) + ((bool)COL5 << 5) + ((bool)COL6 << 6) + ((bool)COL7 << 7) 
+                    + ((bool)COL8 << 8) + ((bool)COL9 << 9) + ((bool)COL10 << 10) + ((bool)COL11 << 11)
+                    + ((bool)COL12 << 12) + ((bool)COL13 << 13);
   
       for (int i = 0; i < 14; i++){
-          uint8_t current = !!(currentRow0 & (1 << i));
-          uint8_t prev = !!(lastRow0 & (1 << i));
+          uint8_t current = (bool)(currentRow0 & (1 << i));
+          uint8_t prev = (bool)(lastRow0 & (1 << i));
         
           if (current != prev){
             if (current){
@@ -97,18 +99,18 @@ void Switch_Handler(){
 			// ROW1 - PF2
 			
 			// pulse row
-			GPIO_PORTF_DATA_R |= (1 << 2);
+			//GPIO_PORTF_DATA_R |= (1 << 2);
 			Clock_Delay(100);
 			
 			// sense columns
-      currentRow1 = (!!COL0) + (!!COL1 << 1) + (!!COL2 << 2) + (!!COL3 << 3) 
-                    + (!!COL4 << 4) + (!!COL5 << 5) + (!!COL6 << 6) + (!!COL7 << 7) 
-                    + (!!COL8 << 8) + (!!COL9 << 9) + (!!COL10 << 10) + (!!COL11 << 11)
-                    + (!!COL12 << 12) + (!!COL13 << 13);
+      currentRow1 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 
+                    + ((bool)COL4 << 4) + ((bool)COL5 << 5) + ((bool)COL6 << 6) + ((bool)COL7 << 7) 
+                    + ((bool)COL8 << 8) + ((bool)COL9 << 9) + ((bool)COL10 << 10) + ((bool)COL11 << 11)
+                    + ((bool)COL12 << 12) + ((bool)COL13 << 13);
   
       for (int i = 0; i < 14; i++){
-          uint8_t current = !!(currentRow1 & (1 << i));
-          uint8_t prev = !!(lastRow0 & (1 << i));
+          uint8_t current = (bool)(currentRow1 & (1 << i));
+          uint8_t prev = (bool)(lastRow1 & (1 << i));
         
           if (current != prev){
             if (current){
@@ -248,18 +250,51 @@ void Switch_Handler(){
 	
 }
 
+#define ROW0 PF3
+#define ROW1 PF2
+#define ROW2 PF1
+#define ROW3 PF0
+#define ROW4 PC3 // TDO, must unlock
+
+
 
 void Switch_Init(){
 
-	SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R1 | SYSCTL_RCGCGPIO_R5; // Activate port B and F
-	while ((SYSCTL_PRGPIO_R & (SYSCTL_PRGPIO_R1 | SYSCTL_PRGPIO_R5)) != (SYSCTL_PRGPIO_R1 | SYSCTL_PRGPIO_R5)){}
+	SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R1 | SYSCTL_RCGCGPIO_R2 | SYSCTL_RCGCGPIO_R3 | SYSCTL_RCGCGPIO_R4 | SYSCTL_RCGCGPIO_R5; // Activate ports B, C, E, D, and F
+	while ((SYSCTL_PRGPIO_R & (SYSCTL_RCGCGPIO_R1 | SYSCTL_RCGCGPIO_R2 | SYSCTL_RCGCGPIO_R3 | SYSCTL_RCGCGPIO_R4 | SYSCTL_RCGCGPIO_R5)) != (SYSCTL_RCGCGPIO_R1 | SYSCTL_RCGCGPIO_R2 | SYSCTL_RCGCGPIO_R3 | SYSCTL_RCGCGPIO_R4 | SYSCTL_RCGCGPIO_R5)){}
 	
-	GPIO_PORTF_DIR_R |= (1 << 1) + (1 << 2) + (1 << 3); // Set rows to output
-	GPIO_PORTF_DEN_R |= 1 + (1 << 1) + (1 << 2) + (1<<3);
+  GPIO_PORTF_LOCK_R = 0x4C4F434B;
+  GPIO_PORTF_CR_R |= 1;
+	GPIO_PORTF_DIR_R |= (1 << 0) + (1 << 1) + (1 << 2) + (1 << 3); // Set rows to output
+  GPIO_PORTF_PUR_R &= ~((1 << 0) + (1 << 1) + (1 << 2) + (1 << 3));
+  GPIO_PORTF_DIR_R &= ~(1 << 4); // set col7 to IN
+	GPIO_PORTF_DEN_R |= 1 + (1 << 1) + (1 << 2) + (1<<3) + (1 << 4);
 	
-	GPIO_PORTB_DEN_R |= (1 << 4) + (1 << 5) + (1 << 6);
+  
+	GPIO_PORTB_DEN_R |= (1 << 4) + (1 << 5) + (1 << 6) + (1 << 7);
+  GPIO_PORTE_LOCK_R = 0x4C4F434B;
+  GPIO_PORTE_CR_R |= (1 << 0) + (1 << 1) + (1 << 2) + (1 << 3) + (1 << 4) + (1 << 5);
+  GPIO_PORTE_DEN_R |= (1 << 0) + (1 << 1) + (1 << 2) + (1 << 3) + (1 << 4) + (1 << 5);
+  GPIO_PORTC_LOCK_R = 0x4C4F434B;
+  GPIO_PORTC_CR_R |= (1 << 3);
+  GPIO_PORTC_DEN_R |= (1 << 3) + (1 << 6) + (1 << 7);
+  GPIO_PORTC_DIR_R |= (1 << 3);
+  GPIO_PORTC_PUR_R &= ~(1 << 3);
+  GPIO_PORTC_AFSEL_R &= ~(1 << 3);
+  GPIO_PORTC_DATA_R &= ~(1 << 3);
+    
+  GPIO_PORTD_LOCK_R = 0x4C4F434B;
+  GPIO_PORTD_CR_R |= (1 << 7);
+  GPIO_PORTD_DEN_R |= (1 << 7);
 	
-	
+	GPIO_PORTF_DATA_R = 0;
+  GPIO_PORTE_DATA_R = 0;
+  GPIO_PORTD_DATA_R = 0;
+  GPIO_PORTC_DATA_R = 0;
+  GPIO_PORTB_DATA_R = 0;
+  
+  
+  
 	Timer2A_Init(&Switch_Handler, 8000, 4); // Poll at 100 Hz (3 cols)
 }
 

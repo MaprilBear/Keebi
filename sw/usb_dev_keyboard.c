@@ -453,27 +453,10 @@ void PressKey(uint8_t c){
 	//
   
   g_eKeyboardState = STATE_SENDING;
-  switch (c){
-    case HID_KEYB_LEFT_SHIFT:
-    case HID_KEYB_RIGHT_SHIFT:
-    case HID_KEYB_LEFT_CTRL:
-    case HID_KEYB_RIGHT_CTRL:
-    case HID_KEYB_LEFT_ALT:
-    case HID_KEYB_RIGHT_ALT:
-    case HID_KEYB_LEFT_GUI:
-    case HID_KEYB_RIGHT_GUI:
-      modifierFlags |= c;
-      USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-									 modifierFlags,
-									 HID_KEYB_USAGE_RESERVED,
-									 true);
-    break;
-    default:
-      USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-									 modifierFlags,
+  USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
+									 0,
 									 c,
 									 true);
-  }
 
 
 	if(!WaitForSendIdle(MAX_SEND_DELAY))
@@ -495,27 +478,10 @@ void ReleaseKey(uint8_t c){
 	//
   
    g_eKeyboardState = STATE_SENDING;
-  switch (c){
-    case HID_KEYB_LEFT_SHIFT:
-    case HID_KEYB_RIGHT_SHIFT:
-    case HID_KEYB_LEFT_CTRL:
-    case HID_KEYB_RIGHT_CTRL:
-    case HID_KEYB_LEFT_ALT:
-    case HID_KEYB_RIGHT_ALT:
-    case HID_KEYB_LEFT_GUI:
-    case HID_KEYB_RIGHT_GUI:
-      modifierFlags &= ~c;
-      USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-									 modifierFlags,
-									 HID_KEYB_USAGE_RESERVED,
-									 false);
-    break;
-    default:
-      USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-									 modifierFlags,
+  USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
+									 0,
 									 c,
 									 false);
-    }
 	//
 	// Wait until the key release message has been sent.
 	//
@@ -834,6 +800,7 @@ main(void)
         // Wait here until USB device is connected to a host.
         //
 		
+    Clock_Delay1ms(1000);
 		Switch_Init();
 		
         while(!g_bConnected)
