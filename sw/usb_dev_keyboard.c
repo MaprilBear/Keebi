@@ -40,6 +40,7 @@
 #include "usblib/usblib.h"
   
 #include "usblib/device/usbdevice.h"
+#include "usblib/usbhid.h"
 #include "usblib/device/usbdhid.h"
 #include "usblib/device/usbdhidkeyb.h"
 #include "./drivers/buttons.h"
@@ -678,8 +679,6 @@ main(void)
   GPIO_PORTD_DEN_R |= 0x2;
   
   GPIO_PORTD_DATA_R &= ~0x2;
-    
-Q
   
   /*
 	// Init UART with BGM220P
