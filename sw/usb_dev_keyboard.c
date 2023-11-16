@@ -88,125 +88,319 @@
 
 //*****************************************************************************
 //
-// A mapping from the ASCII value received from the UART to the corresponding
-// USB HID usage code.
+// Add the supplied usage code to the list of keys currently in the pressed
+// state.
+//
+// \param ui8UsageCode is the HID usage code of the newly pressed key.
+//
+// This function adds the supplied usage code to the global list of keys which
+// are currently pressed (assuming it is not already noted as pressed and that
+// there is space in the list to hold the new information).  The return code
+// indicates success if the list did not overflow and failure if the list
+// already contains as many pressed keys as can be reported.
+//
+// \return Returns \b true if the usage code was successfully added to the
+// list or \b false if there was insufficient space to hold the new key
+// press (in which case the caller should report a roll over error to the
+// host).
 //
 //*****************************************************************************
-static const int8_t g_ppi8KeyUsageCodes[][2] =
+static bool
+AddKeyToPressedList(tHIDKeyboardInstance *psInst, uint8_t ui8UsageCode)
 {
-    { 0, HID_KEYB_USAGE_SPACE },                       //   0x20
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_1 },         // ! 0x21
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_FQUOTE },    // " 0x22
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_3 },         // # 0x23
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_4 },         // $ 0x24
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_5 },         // % 0x25
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_7 },         // & 0x26
-    { 0, HID_KEYB_USAGE_FQUOTE },                      // ' 0x27
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_9 },         // ( 0x28
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_0 },         // ) 0x29
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_8 },         // * 0x2a
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_EQUAL },     // + 0x2b
-    { 0, HID_KEYB_USAGE_COMMA },                       // , 0x2c
-    { 0, HID_KEYB_USAGE_MINUS },                       // - 0x2d
-    { 0, HID_KEYB_USAGE_PERIOD },                      // . 0x2e
-    { 0, HID_KEYB_USAGE_FSLASH },                      // / 0x2f
-    { 0, HID_KEYB_USAGE_0 },                           // 0 0x30
-    { 0, HID_KEYB_USAGE_1 },                           // 1 0x31
-    { 0, HID_KEYB_USAGE_2 },                           // 2 0x32
-    { 0, HID_KEYB_USAGE_3 },                           // 3 0x33
-    { 0, HID_KEYB_USAGE_4 },                           // 4 0x34
-    { 0, HID_KEYB_USAGE_5 },                           // 5 0x35
-    { 0, HID_KEYB_USAGE_6 },                           // 6 0x36
-    { 0, HID_KEYB_USAGE_7 },                           // 7 0x37
-    { 0, HID_KEYB_USAGE_8 },                           // 8 0x38
-    { 0, HID_KEYB_USAGE_9 },                           // 9 0x39
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_SEMICOLON }, // : 0x3a
-    { 0, HID_KEYB_USAGE_SEMICOLON },                   // ; 0x3b
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_COMMA },     // < 0x3c
-    { 0, HID_KEYB_USAGE_EQUAL },                       // = 0x3d
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_PERIOD },    // > 0x3e
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_FSLASH },    // ? 0x3f
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_2 },         // @ 0x40
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_A },         // A 0x41
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_B },         // B 0x42
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_C },         // C 0x43
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_D },         // D 0x44
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_E },         // E 0x45
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_F },         // F 0x46
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_G },         // G 0x47
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_H },         // H 0x48
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_I },         // I 0x49
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_J },         // J 0x4a
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_K },         // K 0x4b
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_L },         // L 0x4c
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_M },         // M 0x4d
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_N },         // N 0x4e
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_O },         // O 0x4f
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_P },         // P 0x50
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_Q },         // Q 0x51
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_R },         // R 0x52
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_S },         // S 0x53
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_T },         // T 0x54
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_U },         // U 0x55
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_V },         // V 0x56
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_W },         // W 0x57
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_X },         // X 0x58
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_Y },         // Y 0x59
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_Z },         // Z 0x5a
-    { 0, HID_KEYB_USAGE_LBRACKET },                    // [ 0x5b
-    { 0, HID_KEYB_USAGE_BSLASH },                      // \ 0x5c
-    { 0, HID_KEYB_USAGE_RBRACKET },                    // ] 0x5d
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_6 },         // ^ 0x5e
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_MINUS },     // _ 0x5f
-    { 0, HID_KEYB_USAGE_BQUOTE },                      // ` 0x60
-    { 0, HID_KEYB_USAGE_A },                           // a 0x61
-    { 0, HID_KEYB_USAGE_B },                           // b 0x62
-    { 0, HID_KEYB_USAGE_C },                           // c 0x63
-    { 0, HID_KEYB_USAGE_D },                           // d 0x64
-    { 0, HID_KEYB_USAGE_E },                           // e 0x65
-    { 0, HID_KEYB_USAGE_F },                           // f 0x66
-    { 0, HID_KEYB_USAGE_G },                           // g 0x67
-    { 0, HID_KEYB_USAGE_H },                           // h 0x68
-    { 0, HID_KEYB_USAGE_I },                           // i 0x69
-    { 0, HID_KEYB_USAGE_J },                           // j 0x6a
-    { 0, HID_KEYB_USAGE_K },                           // k 0x6b
-    { 0, HID_KEYB_USAGE_L },                           // l 0x6c
-    { 0, HID_KEYB_USAGE_M },                           // m 0x6d
-    { 0, HID_KEYB_USAGE_N },                           // n 0x6e
-    { 0, HID_KEYB_USAGE_O },                           // o 0x6f
-    { 0, HID_KEYB_USAGE_P },                           // p 0x70
-    { 0, HID_KEYB_USAGE_Q },                           // q 0x71
-    { 0, HID_KEYB_USAGE_R },                           // r 0x72
-    { 0, HID_KEYB_USAGE_S },                           // s 0x73
-    { 0, HID_KEYB_USAGE_T },                           // t 0x74
-    { 0, HID_KEYB_USAGE_U },                           // u 0x75
-    { 0, HID_KEYB_USAGE_V },                           // v 0x76
-    { 0, HID_KEYB_USAGE_W },                           // w 0x77
-    { 0, HID_KEYB_USAGE_X },                           // x 0x78
-    { 0, HID_KEYB_USAGE_Y },                           // y 0x79
-    { 0, HID_KEYB_USAGE_Z },                           // z 0x7a
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_LBRACKET },  // { 0x7b
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_BSLASH },    // | 0x7c
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_RBRACKET },  // } 0x7d
-    { HID_KEYB_LEFT_SHIFT, HID_KEYB_USAGE_BQUOTE },    // ~ 0x7e
-    { 0, HID_KEYB_USAGE_F1},                           // F1 x7f
-    { 0, HID_KEYB_USAGE_F2},                           // F2 x7f
-    { 0, HID_KEYB_USAGE_F3},                           // F3 x7f
-    { 0, HID_KEYB_USAGE_F4},                           // F4 x7f
-    { 0, HID_KEYB_USAGE_F5},                           // F5 x7f
-    { 0, HID_KEYB_USAGE_F6},                           // F6 x7f
-    { 0, HID_KEYB_USAGE_F7},                           // F7 x7f
-    { 0, HID_KEYB_USAGE_F8},                           // F8 x7f
-    { 0, HID_KEYB_USAGE_F9},                           // F9 x7f
-    { 0, HID_KEYB_USAGE_F10},                           // F10 x7f
-    { 0, HID_KEYB_USAGE_F11},                           // F11 x7f
-    { 0, HID_KEYB_USAGE_F12},                           // F12 x7f
+    uint32_t ui32Loop;
+    bool bRetcode;
+
     //
-    // Add characters outside of 0x20-0x7e here to avoid breaking the table
-    // lookup calculations.
+    // Assume all is well until we determine otherwise.
     //
-    { 0, HID_KEYB_USAGE_ENTER },                       // LF 0x0A
-};
+    bRetcode = true;
+
+    //
+    // Look through the list of existing pressed keys to see if the new one
+    // is already there.
+    //
+    for(ui32Loop = 0; ui32Loop < (uint32_t)psInst->ui8KeyCount; ui32Loop++)
+    {
+        //
+        // Is this key already included in the list of keys in the pressed
+        // state?
+        //
+        if(ui8UsageCode == psInst->pui8KeysPressed[ui32Loop])
+        {
+            //
+            // Yes - drop out.
+            //
+            break;
+        }
+    }
+
+    //
+    // If we exited the loop at the end of the existing key presses, this
+    // key does not exist already so add it if space exists.
+    //
+    if(ui32Loop >= psInst->ui8KeyCount)
+    {
+        if(psInst->ui8KeyCount < KEYB_MAX_CHARS_PER_REPORT)
+        {
+            //
+            // We have room so store the new key press in the list.
+            //
+            psInst->pui8KeysPressed[psInst->ui8KeyCount] = ui8UsageCode;
+            psInst->ui8KeyCount++;
+            bRetcode = true;
+        }
+        else
+        {
+            //
+            // We have no room for the new key - declare a rollover error.
+            //
+            bRetcode = false;
+        }
+    }
+
+    return(bRetcode);
+}
+
+//*****************************************************************************
+//
+// Remove the supplied usage code from the list of keys currently in the
+// pressed state.
+//
+// \param ui8UsageCode is the HID usage code of the newly released key.
+//
+// This function removes the supplied usage code from the global list of keys
+// which are currently pressed.  The return code indicates whether the key was
+// found in the list.  On exit, the list has been cleaned up to ensure
+// that all key presses are contiguous starting at the first entry.
+//
+// \return Returns \b true if the usage code was found and removed from the
+// list or \b false if the code was not found.  The caller need not pass a new
+// report to the host if \b false is returned since the key list has not
+// changed.
+//
+//*****************************************************************************
+static bool
+RemoveKeyFromPressedList(tHIDKeyboardInstance *psInst,
+                         uint8_t ui8UsageCode)
+{
+    uint32_t ui32Loop;
+    uint32_t ui32Pos;
+
+    //
+    // Keep the compiler happy by setting ui32Pos to something.
+    //
+    ui32Pos = 0;
+
+    //
+    // Find the usage code in the current list.
+    //
+    for(ui32Loop = 0; ui32Loop < KEYB_MAX_CHARS_PER_REPORT; ui32Loop++)
+    {
+        if(psInst->pui8KeysPressed[ui32Loop] == ui8UsageCode)
+        {
+            ui32Pos = ui32Loop;
+            break;
+        }
+    }
+
+    //
+    // If we dropped out at the end of the loop, we could not find the code so
+    // just return false.
+    //
+    if(ui32Loop == KEYB_MAX_CHARS_PER_REPORT)
+    {
+        return(false);
+    }
+
+    //
+    // Now shuffle all the values to the right of the usage code we found
+    // down one position to fill the gap left by removing it.
+    //
+    for(ui32Loop = (ui32Pos + 1); ui32Loop < KEYB_MAX_CHARS_PER_REPORT;
+        ui32Loop++)
+    {
+        psInst->pui8KeysPressed[ui32Loop - 1] =
+                                        psInst->pui8KeysPressed[ui32Loop];
+    }
+
+    //
+    // Clear the last entry in the array and adjust the number of keys in the
+    // array.
+    //
+    psInst->pui8KeysPressed[KEYB_MAX_CHARS_PER_REPORT - 1] =
+                                                    HID_KEYB_USAGE_RESERVED;
+    psInst->ui8KeyCount--;
+
+    //
+    // Tell the caller we were successful.
+    //
+    return(true);
+}
+
+uint32_t _SendKeyReport(void *pvKeyboardDevice){
+  
+   tHIDKeyboardInstance *psInst;
+    tUSBDHIDKeyboardDevice *psHIDKbDevice;
+    tUSBDHIDDevice *psHIDDevice;
+  
+  uint32_t ui32Loop, ui32Count;
+  
+   //
+    // Assume all is well until we determine otherwise.
+    //
+    bool bRetcode = true;
+
+    psHIDKbDevice = (tUSBDHIDKeyboardDevice *)pvKeyboardDevice;
+
+    //
+    // Get a pointer to the HID device data.
+    //
+    psHIDDevice = &psHIDKbDevice->sPrivateData.sHIDDevice;
+
+    //
+    // Get a pointer to our instance data
+    //
+    psInst = &psHIDKbDevice->sPrivateData;
+  
+  //
+        // Build the report from the current list of keys.  If we added a key
+        // and got a bad return code indicating a roll over error, we need to
+        // send a roll over report
+        //
+        for(ui32Loop = 0; ui32Loop < KEYB_MAX_CHARS_PER_REPORT; ui32Loop++)
+        {
+            psInst->pui8Report[2 + ui32Loop] = (bRetcode ?
+                psInst->pui8KeysPressed[ui32Loop] : HID_KEYB_USAGE_ROLLOVER);
+        }
+  
+    //
+    // Only send a report if the transmitter is currently free.
+    //
+    
+ 
+    if(USBDHIDTxPacketAvailable((void *)psHIDDevice))
+    {
+        //
+        // Send the report to the host.
+        //
+        psInst->eKeyboardState = HID_KEYBOARD_STATE_SEND;
+        ui32Count = USBDHIDReportWrite((void *)psHIDDevice,
+                                       psInst->pui8Report, KEYB_IN_REPORT_SIZE,
+                                       true);
+
+        //
+        // Did we schedule a packet for transmission correctly?
+        //
+        if(!ui32Count)
+        {
+            //
+            // No - report the error to the caller.
+            //
+            return(KEYB_ERR_TX_ERROR);
+        }
+    }
+    else
+    {
+        //
+        // We can't send the report immediately so mark the instance so that
+        // it is sent next time the transmitter is free.
+        //
+        psInst->bChangeMade = true;
+    }
+}
+
+void SendKeyReport(){
+  _SendKeyReport((void *)&g_sKeyboardDevice);
+}
+
+uint32_t
+KeyStateChange(void *pvKeyboardDevice, uint8_t ui8Modifiers,
+                              uint8_t ui8UsageCode, bool bPress)
+{
+    bool bRetcode;
+    uint32_t ui32Loop, ui32Count;
+    tHIDKeyboardInstance *psInst;
+    tUSBDHIDKeyboardDevice *psHIDKbDevice;
+    tUSBDHIDDevice *psHIDDevice;
+
+    psHIDKbDevice = (tUSBDHIDKeyboardDevice *)pvKeyboardDevice;
+
+    //
+    // Get a pointer to the HID device data.
+    //
+    psHIDDevice = &psHIDKbDevice->sPrivateData.sHIDDevice;
+
+    //
+    // Assume all is well until we determine otherwise.
+    //
+    bRetcode = true;
+
+    //
+    // Get a pointer to our instance data
+    //
+    psInst = &psHIDKbDevice->sPrivateData;
+
+    //
+    // Update the global keyboard report with the information passed.
+    //
+    psInst->pui8Report[0] = ui8Modifiers;
+    psInst->pui8Report[1] = 0;
+
+    //
+    // Were we passed a usage code for a new key press or release or was
+    // this call just telling us about a modifier change?
+    //
+    if(ui8UsageCode != HID_KEYB_USAGE_RESERVED)
+    {
+        //
+        // Has a key been pressed or released?
+        //
+        if(bPress)
+        {
+            //
+            // A key has been pressed - add it to the list if there is space an
+            // and the key is not already in the list.
+            //
+            bRetcode = AddKeyToPressedList(psInst, ui8UsageCode);
+        }
+        else
+        {
+            //
+            // A key has been released - remove it from the list.
+            //
+            bRetcode = RemoveKeyFromPressedList(psInst, ui8UsageCode);
+
+            //
+            // The return code here indicates whether the key was found.  If it
+            // wasn't, the list has not changes so merely exit at this point
+            // without sending anything to the host.
+            //
+            if(!bRetcode)
+            {
+                return(KEYB_ERR_NOT_FOUND);
+            }
+        }
+
+        
+    }
+
+    //
+    // If we are not configured, return an error here before trying to send
+    // anything.
+    //
+    if(!psInst->ui8USBConfigured)
+    {
+        return(KEYB_ERR_NOT_CONFIGURED);
+    }
+
+    //
+    // If we get this far, the key information was sent successfully.  Are
+    // too many keys currently pressed, though?
+    //
+    return(bRetcode ? KEYB_SUCCESS : KEYB_ERR_TOO_MANY_KEYS);
+}
+
 
 //*****************************************************************************
 //
@@ -444,153 +638,121 @@ WaitForSendIdle(uint_fast32_t ui32TimeoutTicks)
 uint8_t modifierFlags = 0;
 
 void PressKey(uint8_t c){
-	if(g_bSuspended) {
-		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
-	}
    
 	//
 	// Send the key press message.
 	//
   
   g_eKeyboardState = STATE_SENDING;
-  USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-									 0,
+  switch (c){
+    case LEFT_SHIFT:
+      modifierFlags |= HID_KEYB_LEFT_SHIFT;
+      break;
+    case RIGHT_SHIFT:
+      modifierFlags |= HID_KEYB_RIGHT_SHIFT;
+      break;
+    case LEFT_CTRL:
+      modifierFlags |= HID_KEYB_LEFT_CTRL;
+      break;
+    case RIGHT_CTRL:
+      modifierFlags |= HID_KEYB_RIGHT_CTRL;
+      break;
+    case LEFT_ALT:
+      modifierFlags |= HID_KEYB_LEFT_ALT;
+      break;
+    case RIGHT_ALT:
+      modifierFlags |= HID_KEYB_RIGHT_ALT;
+      break;
+    case LEFT_GUI:
+      modifierFlags |= HID_KEYB_LEFT_GUI;
+      break;
+    case RIGHT_GUI:
+      modifierFlags |= HID_KEYB_RIGHT_GUI;
+      break;
+    default:
+      KeyStateChange((void *)&g_sKeyboardDevice,
+									 modifierFlags,
 									 c,
 									 true);
+  }
+   
+  switch (c){
+    case LEFT_SHIFT:
+    case RIGHT_SHIFT:
+    case LEFT_CTRL:
+    case RIGHT_CTRL:
+    case LEFT_ALT:
+    case RIGHT_ALT:
+    case LEFT_GUI:
+    case RIGHT_GUI:
+    KeyStateChange((void *)&g_sKeyboardDevice,
+                     modifierFlags,
+                     HID_KEYB_USAGE_RESERVED,
+                     true);
+    break;
+  }
 
-
-	if(!WaitForSendIdle(MAX_SEND_DELAY))
-	{
-		g_bConnected = 0;
-		return;
-	}
 
 }
 
 void ReleaseKey(uint8_t c){
-
-	if(g_bSuspended) {
-		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
-	}
    
 	//
 	// Send the key release message.
 	//
   
    g_eKeyboardState = STATE_SENDING;
-  USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-									 0,
+   switch (c){
+    case LEFT_SHIFT:
+      modifierFlags &= ~HID_KEYB_LEFT_SHIFT;
+      break;
+    case RIGHT_SHIFT:
+      modifierFlags &= ~HID_KEYB_RIGHT_SHIFT;
+      break;
+    case LEFT_CTRL:
+      modifierFlags &= ~HID_KEYB_LEFT_CTRL;
+      break;
+    case RIGHT_CTRL:
+      modifierFlags &= ~HID_KEYB_RIGHT_CTRL;
+      break;
+    case LEFT_ALT:
+      modifierFlags &= ~HID_KEYB_LEFT_ALT;
+      break;
+    case RIGHT_ALT:
+      modifierFlags &= ~HID_KEYB_RIGHT_ALT;
+      break;
+    case LEFT_GUI:
+      modifierFlags &= ~HID_KEYB_LEFT_GUI;
+      break;
+    case RIGHT_GUI:
+      modifierFlags &= ~HID_KEYB_RIGHT_GUI;
+      break;
+    default:
+      KeyStateChange((void *)&g_sKeyboardDevice,
+									 modifierFlags,
 									 c,
 									 false);
+  }
+   
+  switch (c){
+    case LEFT_SHIFT:
+    case RIGHT_SHIFT:
+    case LEFT_CTRL:
+    case RIGHT_CTRL:
+    case LEFT_ALT:
+    case RIGHT_ALT:
+    case LEFT_GUI:
+    case RIGHT_GUI:
+    KeyStateChange((void *)&g_sKeyboardDevice,
+                     modifierFlags,
+                     HID_KEYB_USAGE_RESERVED,
+                     false);
+    break;
+  }
 	//
 	// Wait until the key release message has been sent.
 	//
-	if(!WaitForSendIdle(MAX_SEND_DELAY))
-	{
-		g_bConnected = 0;
-		return;
-	}
 
-}
-
-//*****************************************************************************
-//
-// Sends a string of characters via the USB HID keyboard interface.
-//
-//*****************************************************************************
-void
-SendString(char *pcStr)
-{
-
-	if(g_bSuspended)
-	{
-		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
-	}
-
-    uint32_t ui32Char;
-
-    //
-    // Loop while there are more characters in the string.
-    //
-    while(*pcStr)
-    {
-        //
-        // Get the next character from the string.
-        //
-        ui32Char = *pcStr++;
-
-        //
-        // Skip this character if it is a non-printable character.
-        //
-        if((ui32Char < ' ') || (ui32Char > '~'))
-        {
-            //
-            // Allow LF to work with this example.
-            //
-            if (ui32Char != '\n')
-            {
-                continue;
-            }
-        }
-
-        //
-        // Check for LF and if there is one, assign the table value.
-        // Otherwise, convert the character per the keyboard table.
-        //
-        if (ui32Char == '\n')
-        {
-            ui32Char = 0x5f;
-        }
-        else
-        {
-            //
-            // Convert the character into an index into the keyboard usage code
-            // table.
-            //
-            ui32Char -= ' ';
-        }
-
-        //
-        // Send the key press message.
-        //
-        g_eKeyboardState = STATE_SENDING;
-        if(USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-                                         g_ppi8KeyUsageCodes[ui32Char][0],
-                                         g_ppi8KeyUsageCodes[ui32Char][1],
-                                         true) != KEYB_SUCCESS)
-        {
-            return;
-        }
-
-        //
-        // Wait until the key press message has been sent.
-        //
-        if(!WaitForSendIdle(MAX_SEND_DELAY))
-        {
-            g_bConnected = 0;
-            return;
-        }
-
-        //
-        // Send the key release message.
-        //
-        g_eKeyboardState = STATE_SENDING;
-        if(USBDHIDKeyboardKeyStateChange((void *)&g_sKeyboardDevice,
-                                         0, g_ppi8KeyUsageCodes[ui32Char][1],
-                                         false) != KEYB_SUCCESS)
-        {
-            return;
-        }
-
-        //
-        // Wait until the key release message has been sent.
-        //
-        if(!WaitForSendIdle(MAX_SEND_DELAY))
-        {
-            g_bConnected = 0;
-            return;
-        }
-    }
 }
 
 //*****************************************************************************

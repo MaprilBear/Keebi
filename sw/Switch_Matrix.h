@@ -5,6 +5,14 @@
 #include <stdint.h>
 
 #define WINDOWS_KEY 0x65
+#define LEFT_SHIFT 0x66
+#define RIGHT_SHIFT 0x67
+#define LEFT_CTRL 0x68
+#define RIGHT_CTRL 0x69
+#define LEFT_GUI 0x6A
+#define RIGHT_GUI 0x6B
+#define LEFT_ALT 0x6C
+#define RIGHT_ALT 0x6D
 #define PAUSE 0xE8
 #define DELETE 0x4C
 #define HOME 0x4A

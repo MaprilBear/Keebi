@@ -1,5 +1,7 @@
 void SendString(char *pcStr);
 
-void PressKey(char c);
+void SendKeyReport();
 
-void ReleaseKey(char c);
+void PressKey(uint8_t c);
+
+void ReleaseKey(uint8_t c);
