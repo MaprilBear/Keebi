@@ -75,14 +75,6 @@
 }
 
 #else
-  //Keil uVision Code
-  __asm void
-  Clock_Delay(uint32_t ulCount)
-  {
-    subs    r0, #1
-    bne     Clock_Delay
-    bx      lr
-  }
 
 #endif
   
@@ -91,8 +83,9 @@
 // Inputs: n, number of msec to wait
 // Outputs: none
 void Clock_Delay1ms(uint32_t n){
+	static uint16_t counter = 23746;
   while(n){
-    Clock_Delay(23746);  // 1 msec, tuned at 80 MHz, originally part of LCD module
+    while(counter--){};  // 1 msec, tuned at 80 MHz, originally part of LCD module
     n--;
   }
 }

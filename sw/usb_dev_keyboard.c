@@ -88,6 +88,21 @@
 
 //*****************************************************************************
 //
+// This global indicates whether or not we are connected to a USB host.
+//
+//*****************************************************************************
+volatile bool g_bConnected = false;
+
+//*****************************************************************************
+//
+// This global indicates whether or not the USB bus is currently in the suspend
+// state.
+//
+//*****************************************************************************
+volatile bool g_bSuspended = false;
+
+//*****************************************************************************
+//
 // Add the supplied usage code to the list of keys currently in the pressed
 // state.
 //
@@ -263,6 +278,12 @@ uint32_t _SendKeyReport(void *pvKeyboardDevice){
     //
     psInst = &psHIDKbDevice->sPrivateData;
   
+  /*
+  	if(g_bSuspended) {
+		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
+	}
+*/
+  
   //
         // Build the report from the current list of keys.  If we added a key
         // and got a bad return code indicating a roll over error, we need to
@@ -402,20 +423,7 @@ KeyStateChange(void *pvKeyboardDevice, uint8_t ui8Modifiers,
 }
 
 
-//*****************************************************************************
-//
-// This global indicates whether or not we are connected to a USB host.
-//
-//*****************************************************************************
-volatile bool g_bConnected = false;
 
-//*****************************************************************************
-//
-// This global indicates whether or not the USB bus is currently in the suspend
-// state.
-//
-//*****************************************************************************
-volatile bool g_bSuspended = false;
 
 //*****************************************************************************
 //
@@ -962,7 +970,7 @@ main(void)
         // Wait here until USB device is connected to a host.
         //
 		
-    Clock_Delay1ms(1000);
+    Clock_Delay1ms(2000);
 		Switch_Init();
 		
         while(!g_bConnected)
