@@ -36,7 +36,8 @@
 #include "gatt_db.h"
 #include "sl_simple_button_instances.h"
 #include "app_iostream_usart.h"
-#include "sl_simple_led_instances.h";
+#include "sl_simple_led_instances.h"
+#include "uartdrv.h"
 
 #define KEY_ARRAY_SIZE         25
 #define MODIFIER_INDEX         0
@@ -50,37 +51,20 @@ static uint8_t advertising_set_handle = 0xff;
 static uint8_t notification_enabled = 0;
 
 static uint8_t input_report_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-static uint8_t actual_key;
-static uint8_t counter = 0;
 
-static const uint8_t reduced_key_array[] = {
-  0x04, /* a */
-  0x05,   /* b */
-  0x06,   /* c */
-  0x07,   /* d */
-  0x08,   /* e */
-  0x09,   /* f */
-  0x0a,   /* g */
-  0x0b,   /* h */
-  0x0c,   /* i */
-  0x0d,   /* j */
-  0x0e,   /* k */
-  0x0f,   /* l */
-  0x10,   /* m */
-  0x11,   /* n */
-  0x12,   /* o */
-  0x13,   /* p */
-  0x14,   /* q */
-  0x15,   /* r */
-  0x16,   /* s */
-  0x17,   /* t */
-  0x18,   /* u */
-  0x19,   /* v */
-  0x1a,   /* w */
-  0x1b,   /* x */
-  0x1c,   /* y */
-  0x1d,   /* z */
-};
+
+void callback(UARTDRV_Handle_t handle,
+              Ecode_t transferStatus,
+              uint8_t *data,
+              UARTDRV_Count_t transferCount)
+{
+  for (int i = 0; i < 8; i++){
+      input_report_data[i] = data[i];
+  }
+
+  sl_bt_external_signal(1);
+  return;
+}
 
 /**************************************************************************//**
  * Application Init.
@@ -94,6 +78,8 @@ SL_WEAK void app_init(void)
 
   // Initialize our UART connection with the TM4C
   app_iostream_usart_init();
+
+
 
   sl_simple_led_init_instances();
 
@@ -114,6 +100,14 @@ SL_WEAK void app_process_action(void)
   /////////////////////////////////////////////////////////////////////////////
 
   app_iostream_usart_process_action();
+
+  uint8_t uartInput[8];
+
+  if (notification_enabled == 1){
+      UARTDRV_Receive(sl_uartdrv_get_default(), uartInput, 8, callback);
+  }
+
+
 }
 
 /**************************************************************************//**
@@ -222,10 +216,6 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       break;
     case  sl_bt_evt_system_external_signal_id:
       if (notification_enabled == 1) {
-        memset(input_report_data, 0, sizeof(input_report_data));
-
-        input_report_data[MODIFIER_INDEX] = CAPSLOCK_KEY_OFF;
-        input_report_data[DATA_INDEX] = actual_key;
 
         sc = sl_bt_gatt_server_notify_all(gattdb_report,
                                           sizeof(input_report_data),
@@ -241,25 +231,4 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     default:
       break;
   }
-}
-
-void sl_button_on_change(const sl_button_t *handle)
-{
-  if (&sl_button_btn0 == handle) {
-    if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
-      actual_key = reduced_key_array[counter];
-      printf("Button pushed - callback\r\n");
-    } else {
-      if (KEY_ARRAY_SIZE == counter) {
-        counter = 0;
-      } else {
-        counter++;
-      }
-
-      actual_key = 0;
-      printf("Button released - callback \r\n");
-    }
-  }
-
-  sl_bt_external_signal(1);
 }

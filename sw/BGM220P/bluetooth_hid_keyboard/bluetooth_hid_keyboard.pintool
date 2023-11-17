@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ASCII"?>
-<device:XMLDevice xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:device="http://www.silabs.com/ss/hwconfig/document/device.ecore" name="pin_tool.BGM220PC22HNA" partId="mcu.arm.efr32.bg22.bgm220pc22hna" contextId="com.silabs.sdk.stack.super:4.3.2._-784576171">
+<device:XMLDevice xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:device="http://www.silabs.com/ss/hwconfig/document/device.ecore" name="pin_tool.BGM220PC22HNA" partId="mcu.arm.efr32.bg22.bgm220pc22hna" contextId="com.silabs.sdk.stack.super:4.3.2._-727816654">
   <mode name="DefaultMode">
     <property object="DefaultMode" propertyId="mode.diagramLocation" value="100, 100"/>
     <property object="GPIO" propertyId="ABModule.selectedRequirement" value="gpio%T%SL_DEBUG%T%sl_debug_swo_config.h"/>
@@ -27,7 +27,7 @@
     <property object="USART0" propertyId="ABModule.selectedRequirement" value="usart%T%SL_IOSTREAM_USART_DEBUG%T%sl_iostream_usart_DEBUG_config.h"/>
     <property object="USART0" propertyId="ABPeripheral.included" value="true"/>
     <property object="USART0" propertyId="peripheral.name" value="DEBUG"/>
-    <property object="USART1" propertyId="ABModule.selectedRequirement" value="usart%T%SL_IOSTREAM_USART_VCOM%T%sl_iostream_usart_vcom_config.h"/>
+    <property object="USART1" propertyId="ABModule.selectedRequirement" value="usart%T%SL_UARTDRV_USART_TM4C%T%sl_uartdrv_usart_tm4c_config.h"/>
     <property object="USART1" propertyId="ABPeripheral.included" value="true"/>
     <property object="USART1" propertyId="peripheral.name" value="TM4C"/>
   </mode>

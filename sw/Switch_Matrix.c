@@ -246,7 +246,12 @@ void Switch_Handler(){
       
       SendKeyReport();
       
-
+      // re-enable JTAG if both shift keys are held
+      if ((currentRow3 & 0x1001) == 0x1001){
+        GPIO_PORTC_AFSEL_R |= (1 << 3);
+      } else {
+        GPIO_PORTC_AFSEL_R &= ~(1 << 3);
+      }
       
   
 }
@@ -306,7 +311,7 @@ void Switch_Init(){
   */
   
   
-	Timer2A_Init(&Switch_Handler, 800000, 4); // Poll at 10 Hz (3 cols)
+	Timer2A_Init(&Switch_Handler, 800000, 4); // Poll at 100 Hz
 }
 
 void Switch_Stop(){

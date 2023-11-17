@@ -30,8 +30,8 @@ component:
   id: simple_button
 - {id: bluetooth_feature_gatt_server}
 - {id: bluetooth_feature_sm}
-- {id: bluetooth_feature_legacy_advertiser}
 - {id: mpu}
+- {id: bluetooth_feature_legacy_advertiser}
 - {id: gatt_configuration}
 - {id: gatt_service_device_information}
 - instance: [status_led]
@@ -39,13 +39,16 @@ component:
 - {id: bluetooth_stack}
 - {id: rail_util_pti}
 - {id: bluetooth_feature_gatt}
+- {id: uartdrv_core}
 - {id: brd4314a}
 - {id: BGM220PC22HNA}
 - {id: bluetooth_feature_legacy_scanner}
 - {id: app_log}
+- instance: [tm4c]
+  id: uartdrv_usart
 - {id: bt_post_build}
 - {id: bluetooth_feature_connection}
-- instance: [DEBUG, vcom]
+- instance: [DEBUG]
   id: iostream_usart
 - {id: bluetooth_feature_system}
 - {id: component_catalog}

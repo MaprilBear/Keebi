@@ -51,10 +51,6 @@ void app_iostream_usart_init(void)
   setvbuf(stdin, NULL, _IONBF, 0);   /*Set unbuffered mode for stdin (newlib)*/
 #endif
 
-  /* Output on vcom usart instance */
-  const char str1[] = "IOstream USART example\r\n\r\n";
-  sl_iostream_write(sl_iostream_vcom_handle, str1, strlen(str1));
-
   /* Setting default stream */
   sl_iostream_set_default(sl_iostream_DEBUG_handle);
   const char str2[] = "This is output on the default DEBUG stream\r\n";
@@ -66,7 +62,7 @@ void app_iostream_usart_init(void)
 }
 
 void UART_OutString(char* string){
-  sl_iostream_write(sl_iostream_vcom_handle, string, strlen(string));
+  sl_iostream_write(sl_iostream_DEBUG_handle, string, strlen(string));
 }
 
 /***************************************************************************//**
@@ -77,8 +73,8 @@ void app_iostream_usart_process_action(void)
   char c = 0;
   static uint8_t index = 0;
 
-  /* Retrieve characters, print local echo and full line back */
-  sl_iostream_getchar(sl_iostream_vcom_handle, &c);
+  /* Retrieve characters, print local echo and full line back */\
+  sl_iostream_getchar(sl_iostream_DEBUG_handle, &c);
   if (c > 0) {
     if (c == '\r' || c == '\n\r') {
       buffer[index] = '\0';

@@ -29,7 +29,7 @@
 #define CR 0x0D
 #define LR 0x0A
 
-// 115200 baud, no parity, one stop bit, FIFOs
+// 115200 baud, odd parity, one stop bit, FIFOs
 
 void UART1_Init(void){
 
@@ -54,7 +54,7 @@ void UART1_Init(void){
   UART1_IBRD_R 					   = 43;                    // IBRD = int(80,000,000 / (16 * 115,200)) = int(43.403)
   UART1_FBRD_R 					   = 26;                    // FBRD = round(0.4028 * 64 ) = 26
                                         
-  UART1_LCRH_R 					   = (UART_LCRH_WLEN_8|UART_LCRH_FEN); // 8 bit word length (no parity bits, one stop bit, FIFOs)
+  UART1_LCRH_R 					   = (UART_LCRH_WLEN_8|UART_LCRH_FEN|UART_LCRH_PEN); // 8 bit word length (odd parity, one stop bit, FIFOs)
   UART1_IFLS_R 					  &= ~0x3F;                 // Clear TX and RX interrupt FIFO level fields
   UART1_CTL_R 					  |= UART_CTL_UARTEN;       // enable UART
 }

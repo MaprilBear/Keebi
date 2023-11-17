@@ -295,7 +295,7 @@ void app_log_init()
 
   app_log_iostream = iostream;
   #else  // APP_LOG_OVERRIDE_DEFAULT_STREAM
-  app_log_iostream = sl_iostream_vcom_handle;
+  app_log_iostream = sl_iostream_get_handle("DEBUG");
   #endif // APP_LOG_OVERRIDE_DEFAULT_STREAM
 }
 
