@@ -278,11 +278,13 @@ uint32_t _SendKeyReport(void *pvKeyboardDevice){
     //
     psInst = &psHIDKbDevice->sPrivateData;
   
-  /*
+  
   	if(g_bSuspended) {
 		USBDHIDKeyboardRemoteWakeupRequest((void *)&g_sKeyboardDevice);
 	}
-*/
+
+    // Build LED state changes
+    psInst->pui8Report[2] = psInst->ui8LEDStates;
   
   //
         // Build the report from the current list of keys.  If we added a key
@@ -422,7 +424,13 @@ KeyStateChange(void *pvKeyboardDevice, uint8_t ui8Modifiers,
     return(bRetcode ? KEYB_SUCCESS : KEYB_ERR_TOO_MANY_KEYS);
 }
 
+void LockKeyToggle(void *pvKeyboardDevice, uint8_t code){
 
+  tUSBDHIDKeyboardDevice* psHIDKbDevice = (tUSBDHIDKeyboardDevice *)pvKeyboardDevice;
+  tHIDKeyboardInstance* psInst = &psHIDKbDevice->sPrivateData;
+
+  psInst->ui8LEDStates ^= code;
+}
 
 
 //*****************************************************************************
@@ -571,11 +579,9 @@ KeyboardHandler(void *pvCBData, uint32_t ui32Event, uint32_t ui32MsgData,
             //
             // Set the LED to match the current state of the caps lock LED.
             //
-            MAP_GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2,
-                             (ui32MsgData & HID_KEYB_CAPS_LOCK) ? GPIO_PIN_2 :
-                             0);
+			    GPIO_PORTD_DATA_R = (GPIO_PORTD_DATA_R & ~0x2) + (ui32MsgData & HID_KEYB_CAPS_LOCK ? 0 : 0x2);
 
-            break;
+          break;
         }
 
         //
@@ -676,6 +682,9 @@ void PressKey(uint8_t c){
       break;
     case RIGHT_GUI:
       modifierFlags |= HID_KEYB_RIGHT_GUI;
+      break;
+    case CAPS_LOCK:
+      LockKeyToggle((void *)&g_sKeyboardDevice, HID_KEYB_CAPS_LOCK);
       break;
     default:
       KeyStateChange((void *)&g_sKeyboardDevice,
@@ -846,7 +855,6 @@ main(void)
   GPIO_PORTD_PUR_R |= 0x2;
   GPIO_PORTD_DEN_R |= 0x2;
   
-  GPIO_PORTD_DATA_R &= ~0x2;
   
   /*
 	// Init UART with BGM220P

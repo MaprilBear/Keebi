@@ -13,6 +13,7 @@
 #define RIGHT_GUI 0x6B
 #define LEFT_ALT 0x6C
 #define RIGHT_ALT 0x6D
+#define CAPS_LOCK 0x6E
 #define PAUSE 0xE8
 #define DELETE 0x4C
 #define HOME 0x4A
