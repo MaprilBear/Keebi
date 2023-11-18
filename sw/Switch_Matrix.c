@@ -50,7 +50,7 @@ uint8_t KeyboardMatrix[2][5][14] = {
     {HID_KEYB_USAGE_BQUOTE, HID_KEYB_USAGE_F1, HID_KEYB_USAGE_F2, HID_KEYB_USAGE_F3, HID_KEYB_USAGE_F4, HID_KEYB_USAGE_F5, HID_KEYB_USAGE_F6, HID_KEYB_USAGE_F7, HID_KEYB_USAGE_F8, HID_KEYB_USAGE_F9, HID_KEYB_USAGE_F10, HID_KEYB_USAGE_F11, HID_KEYB_USAGE_F12, DELETE},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, PAUSE, HOME, END, INSERT},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, CALC, 0, 0, 0, MUTE, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, CALC, 0, BLUETOOTH, 0, MUTE, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, PREV, VOL_DN, VOL_UP, NEXT}
   }
   } ;
@@ -244,13 +244,16 @@ void Switch_Handler(){
       lastRow3 = currentRow3;
       lastRow4 = currentRow4;
       
-      SendKeyReport();
+      
       
       // re-enable JTAG if both shift keys are held
       if ((currentRow3 & 0x1001) == 0x1001){
+        GPIO_PORTC_PDR_R |= (1 << 3);
         GPIO_PORTC_AFSEL_R |= (1 << 3);
       } else {
+        GPIO_PORTC_PDR_R &= ~(1 << 3);
         GPIO_PORTC_AFSEL_R &= ~(1 << 3);
+        SendKeyReport();
       }
       
   
@@ -293,6 +296,7 @@ void Switch_Init(){
   GPIO_PORTC_DEN_R |= (1 << 3);
   GPIO_PORTC_DIR_R |= (1 << 3);
   GPIO_PORTC_PUR_R &= ~(1 << 3);
+  GPIO_PORTC_PDR_R |= (1 << 3);
   GPIO_PORTC_AFSEL_R &= ~(1 << 3);
   GPIO_PORTC_DATA_R &= ~(1 << 3);
   

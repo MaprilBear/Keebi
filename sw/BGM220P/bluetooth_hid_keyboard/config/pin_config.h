@@ -164,6 +164,13 @@
 #define STATUS_LED_PIN                           3
 #endif
 
+#ifndef EM4_WAKEUP_PORT                         
+#define EM4_WAKEUP_PORT                          gpioPortC
+#endif
+#ifndef EM4_WAKEUP_PIN                          
+#define EM4_WAKEUP_PIN                           0
+#endif
+
 // [CUSTOM_PIN_NAME]$
 
 #endif // PIN_CONFIG_H

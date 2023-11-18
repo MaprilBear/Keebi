@@ -28,6 +28,8 @@
  *
  ******************************************************************************/
 #include "em_common.h"
+#include "em_gpio.h"
+#include "em_emu.h"
 #include "app_assert.h"
 #include "sl_bluetooth.h"
 #include "app.h"
@@ -45,6 +47,11 @@
 
 #define CAPSLOCK_KEY_OFF       0x00
 #define CAPSLOCK_KEY_ON        0x02
+
+#define EM4WU_PIN           BSP_GPIO_PC0_PIN
+#define EM4WU_PORT          BSP_GPIO_PC0_PORT
+#define EM4WU_EM4WUEN_NUM   (9)                       // PD2 is EM4WUEN pin 9
+#define EM4WU_EM4WUEN_MASK  (1 << EM4WU_EM4WUEN_NUM)
 
 // The advertising set handle allocated from Bluetooth stack.
 static uint8_t advertising_set_handle = 0xff;
@@ -66,6 +73,9 @@ void callback(UARTDRV_Handle_t handle,
   return;
 }
 
+// turn on, immediately shutoff (EM4) and then wait for the wakeup and then broadcast
+
+
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
@@ -79,13 +89,11 @@ SL_WEAK void app_init(void)
   // Initialize our UART connection with the TM4C
   app_iostream_usart_init();
 
-
-
   sl_simple_led_init_instances();
 
-  sl_led_turn_on(&sl_led_status_led);
+  GPIO_EM4EnablePinWakeup(GPIO_IEN_EM4WUIEN6, GPIO_IEN_EM4WUIEN6); // PC0
 
-  UART_OutString("Hello TM4C!");
+  sl_led_turn_on(&sl_led_status_led);
 }
 
 /**************************************************************************//**
@@ -99,6 +107,12 @@ SL_WEAK void app_process_action(void)
   // Do not call blocking functions from here!                               //
   /////////////////////////////////////////////////////////////////////////////
 
+  if (GPIO_PinInGet(gpioPortC, 0) == 0){
+        sl_led_turn_off(&sl_led_status_led);
+        GPIO_IntClear(GPIO_IntGet());
+        EMU_EnterEM4();
+  }
+
   app_iostream_usart_process_action();
 
   uint8_t uartInput[8];
@@ -106,7 +120,6 @@ SL_WEAK void app_process_action(void)
   if (notification_enabled == 1){
       UARTDRV_Receive(sl_uartdrv_get_default(), uartInput, 8, callback);
   }
-
 
 }
 

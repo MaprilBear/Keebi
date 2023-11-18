@@ -78,29 +78,14 @@
 //
 //*****************************************************************************
 
-//*****************************************************************************
-//
-// The system tick timer period.
-//
-//*****************************************************************************
-#define SYSTICKS_PER_SECOND 100
-
-//*****************************************************************************
-//
-// This global indicates whether or not we are connected to a USB host.
-//
-//*****************************************************************************
+// connected to USB host
 volatile bool g_bConnected = false;
 
-//*****************************************************************************
-//
-// This global indicates whether or not the USB bus is currently in the suspend
-// state.
-//
-//*****************************************************************************
+// is the USB bus suspended
 volatile bool g_bSuspended = false;
 
-volatile bool bluetoothOn = true;
+// Have we enabled bluetooth
+volatile bool bluetoothOn = false;
 
 //*****************************************************************************
 //
@@ -121,9 +106,7 @@ volatile bool bluetoothOn = true;
 // host).
 //
 //*****************************************************************************
-static bool
-AddKeyToPressedList(tHIDKeyboardInstance *psInst, uint8_t ui8UsageCode)
-{
+static bool AddKeyToPressedList(tHIDKeyboardInstance *psInst, uint8_t ui8UsageCode) {
   uint32_t ui32Loop;
   bool bRetcode;
 
@@ -196,10 +179,7 @@ AddKeyToPressedList(tHIDKeyboardInstance *psInst, uint8_t ui8UsageCode)
 // changed.
 //
 //*****************************************************************************
-static bool
-RemoveKeyFromPressedList(tHIDKeyboardInstance *psInst,
-                         uint8_t ui8UsageCode)
-{
+static bool RemoveKeyFromPressedList(tHIDKeyboardInstance *psInst, uint8_t ui8UsageCode) {
   uint32_t ui32Loop;
   uint32_t ui32Pos;
 
@@ -254,8 +234,8 @@ RemoveKeyFromPressedList(tHIDKeyboardInstance *psInst,
   return (true);
 }
 
-void _GenerateReport(void *pvKeyboardDevice, uint8_t report[8])
-{
+// Geneare the INPUT report based on the currently pressed keys
+void _GenerateReport(void *pvKeyboardDevice, uint8_t report[8]) {
   tHIDKeyboardInstance *psInst;
   tUSBDHIDKeyboardDevice *psHIDKbDevice;
   tUSBDHIDDevice *psHIDDevice;
@@ -297,8 +277,9 @@ void _GenerateReport(void *pvKeyboardDevice, uint8_t report[8])
   }
 }
 
-uint32_t _SendKeyReport(void *pvKeyboardDevice, uint8_t report[8])
-{
+
+// Send the provided INPUT report over USB
+uint32_t _SendKeyReport(void *pvKeyboardDevice, uint8_t report[8]) {
   tHIDKeyboardInstance *psInst;
   tUSBDHIDKeyboardDevice *psHIDKbDevice;
   tUSBDHIDDevice *psHIDDevice;
@@ -357,10 +338,11 @@ uint32_t _SendKeyReport(void *pvKeyboardDevice, uint8_t report[8])
   }
 }
 
+// last report so we only tell the bluetooth chip when the currently pressed keys changes
 uint8_t lastReport[8];
 
-void _SendKeyReportBluetooth(void *pvKeyboardDevice, uint8_t report[8])
-{
+// Send the provided report to the bluetooth chip, but only if something has changed
+void _SendKeyReportBluetooth(void *pvKeyboardDevice, uint8_t report[8]) {
   tHIDKeyboardInstance *psInst;
   tUSBDHIDKeyboardDevice *psHIDKbDevice;
   tUSBDHIDDevice *psHIDDevice;
@@ -410,25 +392,36 @@ void _SendKeyReportBluetooth(void *pvKeyboardDevice, uint8_t report[8])
   }
 }
 
-void SendKeyReport()
-{
+// Public function called by Switch_Matrix.c at the end of it's poll
+// Sends the key report either by USB or Bluetooth
+void SendKeyReport() {
   uint8_t report[8];
 
   _GenerateReport((void *)&g_sKeyboardDevice, report);
 
-  
-  _SendKeyReport((void *)&g_sKeyboardDevice, report);
-
   if (bluetoothOn)
   {
     _SendKeyReportBluetooth((void *)&g_sKeyboardDevice, report);
+  } else {
+    _SendKeyReport((void *)&g_sKeyboardDevice, report);
   }
 }
 
-uint32_t
-KeyStateChange(void *pvKeyboardDevice, uint8_t ui8Modifiers,
-               uint8_t ui8UsageCode, bool bPress)
-{
+// Toggle bluetooth, duh :P
+void ToggleBluetooth(){
+  if (bluetoothOn){
+    // disable the flag and tell the bluetooth chip to shutdown (active low)
+    bluetoothOn = false;
+    GPIO_PORTD_DATA_R &= ~0x1;
+  } else {
+    // enable the flag and wakeup the bluetooth chip
+    bluetoothOn = true;
+    GPIO_PORTD_DATA_R |= 0x1;
+  }
+}
+
+// Add or remove the keycode from our list
+uint32_t KeyStateChange(void *pvKeyboardDevice, uint8_t ui8Modifiers, uint8_t ui8UsageCode, bool bPress) {
   bool bRetcode;
   uint32_t ui32Loop, ui32Count;
   tHIDKeyboardInstance *psInst;
@@ -510,9 +503,7 @@ KeyStateChange(void *pvKeyboardDevice, uint8_t ui8Modifiers,
   return (bRetcode ? KEYB_SUCCESS : KEYB_ERR_TOO_MANY_KEYS);
 }
 
-void LockKeyToggle(void *pvKeyboardDevice, uint8_t code)
-{
-
+void LockKeyToggle(void *pvKeyboardDevice, uint8_t code) {
   tUSBDHIDKeyboardDevice *psHIDKbDevice = (tUSBDHIDKeyboardDevice *)pvKeyboardDevice;
   tHIDKeyboardInstance *psInst = &psHIDKbDevice->sPrivateData;
 
@@ -535,12 +526,7 @@ volatile uint32_t g_ui32SysTickCount;
 //*****************************************************************************
 #define MAX_SEND_DELAY 50
 
-//*****************************************************************************
-//
-// This global is set to true if the host sends a request to set or clear
-// any keyboard LED.
-//
-//*****************************************************************************
+// Did the host update an LED? (Caps, Scroll, and Num locks)
 volatile bool g_bDisplayUpdateRequired;
 
 //*****************************************************************************
@@ -769,11 +755,11 @@ void PressKey(uint8_t c)
   case CAPS_LOCK:
     LockKeyToggle((void *)&g_sKeyboardDevice, HID_KEYB_CAPS_LOCK);
     break;
+  case BLUETOOTH:
+    ToggleBluetooth();
+    break;
   default:
-    KeyStateChange((void *)&g_sKeyboardDevice,
-                   modifierFlags,
-                   c,
-                   true);
+    KeyStateChange((void *)&g_sKeyboardDevice, modifierFlags, c, true);
   }
 
   switch (c)
@@ -786,11 +772,8 @@ void PressKey(uint8_t c)
   case RIGHT_ALT:
   case LEFT_GUI:
   case RIGHT_GUI:
-    KeyStateChange((void *)&g_sKeyboardDevice,
-                   modifierFlags,
-                   HID_KEYB_USAGE_RESERVED,
-                   true);
-    break;
+    KeyStateChange((void *)&g_sKeyboardDevice, modifierFlags, HID_KEYB_USAGE_RESERVED, true);
+    break; 
   }
 }
 
@@ -901,6 +884,16 @@ void ConfigureUART(void)
   // Initialize the UART for console I/O.
   //
   UARTStdioConfig(0, 115200, 16000000);
+}
+
+void Bluetooth_Init(){
+  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R3;
+  while (SYSCTL_PRGPIO & SYSCTL_PRGPIO_R3 != 1){}
+
+  GPIO_PORTD_DIR_R |= 0x1;
+  GPIO_PORTD_DEN_R |= 0x1;
+  GPIO_PORTD_PDR_R |= 0x1;
+  GPIO_PORTD_DATA_R &= ~0x1;
 }
 
 //*****************************************************************************
@@ -1063,6 +1056,7 @@ int main(void)
     Clock_Delay1ms(2000);
     UART1_Init();
     Switch_Init();
+    Bluetooth_Init();
 
     while (!g_bConnected)
     {

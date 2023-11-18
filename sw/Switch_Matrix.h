@@ -14,6 +14,7 @@
 #define LEFT_ALT 0x6C
 #define RIGHT_ALT 0x6D
 #define CAPS_LOCK 0x6E
+#define BLUETOOTH 0x6F
 #define PAUSE 0xE8
 #define DELETE 0x4C
 #define HOME 0x4A
