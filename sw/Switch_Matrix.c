@@ -128,7 +128,7 @@ void Switch_Handler(){
 			
 			// pulse row
 			GPIO_PORTF_DATA_R |= (1 << 0);
-			Clock_Delay1ms(DELAY);
+			Clock_Delay1ms(1);
 			
 			// sense columns
       currentRow3 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 
@@ -140,13 +140,13 @@ void Switch_Handler(){
       // End pulse
  
       GPIO_PORTF_DATA_R &= ~(1 << 0);
-      Clock_Delay1ms(DELAY);
+      Clock_Delay1ms(1);
                     
       // ROW4 - PC3
 			
 			// pulse row
 			GPIO_PORTC_DATA_R |= (1 << 3);
-			Clock_Delay1ms(DELAY);
+			Clock_Delay1ms(1);
 			
 			// sense columns
       currentRow4 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 
@@ -158,7 +158,7 @@ void Switch_Handler(){
       // End pulse
  
       GPIO_PORTC_DATA_R &= ~(1 << 3);
-      Clock_Delay1ms(DELAY);
+      Clock_Delay1ms(1);
       
       // Check for modifier
       modifier = (currentRow3 & (1 << 13)) >> 13;
@@ -177,6 +177,21 @@ void Switch_Handler(){
             }
           }
       }
+
+      for (int i = 0; i < 14; i++){
+          uint8_t current = (bool)(currentRow1 & (1 << i));
+          uint8_t prev = (bool)(lastRow1 & (1 << i));
+        
+          if (current != prev){
+            if (current){
+              // Now on, key press
+              PressKey(KeyboardMatrix[modifier][1][i]);
+            } else {
+              // Now off, key released
+              ReleaseKey(KeyboardMatrix[modifier][1][i]);
+            }
+          }
+      }
       
       for (int i = 0; i < 14; i++){
           uint8_t current = (bool)(currentRow2 & (1 << i));
@@ -189,21 +204,6 @@ void Switch_Handler(){
             } else {
               // Now off, key released
               ReleaseKey(KeyboardMatrix[modifier][2][i]);
-            }
-          }
-      }
-      
-       for (int i = 0; i < 14; i++){
-          uint8_t current = (bool)(currentRow1 & (1 << i));
-          uint8_t prev = (bool)(lastRow1 & (1 << i));
-        
-          if (current != prev){
-            if (current){
-              // Now on, key press
-              PressKey(KeyboardMatrix[modifier][1][i]);
-            } else {
-              // Now off, key released
-              ReleaseKey(KeyboardMatrix[modifier][1][i]);
             }
           }
       }
@@ -288,15 +288,16 @@ void Switch_Init(){
   GPIO_PORTE_CR_R |= (1 << 0) + (1 << 1) + (1 << 2) + (1 << 3) + (1 << 4) + (1 << 5);
   GPIO_PORTE_PDR_R |= (1 << 0) + (1 << 1) + (1 << 2) + (1 << 3) + (1 << 4) + (1 << 5);
   GPIO_PORTE_DEN_R |= (1 << 0) + (1 << 1) + (1 << 2) + (1 << 3) + (1 << 4) + (1 << 5);
-  GPIO_PORTC_PDR_R |= (1 << 6) + (1 << 7);
-   GPIO_PORTC_DEN_R |= (1 << 6) + (1 << 7);
   
   GPIO_PORTC_LOCK_R = 0x4C4F434B;
-  GPIO_PORTC_CR_R |= (1 << 3);
-  GPIO_PORTC_DEN_R |= (1 << 3);
+  GPIO_PORTC_CR_R |= (1 << 3) + (1 << 6) + (1 << 7);
+  GPIO_PORTC_DEN_R |= (1 << 3) + (1 << 6) + (1 << 7);
   GPIO_PORTC_DIR_R |= (1 << 3);
+  GPIO_PORTC_DIR_R &= ~((1 << 6) + (1 << 7));
+  GPIO_PORTC_DR8R_R |= (1 << 3);
   GPIO_PORTC_PUR_R &= ~(1 << 3);
-  GPIO_PORTC_PDR_R |= (1 << 3);
+  GPIO_PORTC_PDR_R &= ~(1 << 3);
+  GPIO_PORTC_PDR_R |= (1 << 6) + (1 << 7);
   GPIO_PORTC_AFSEL_R &= ~(1 << 3);
   GPIO_PORTC_DATA_R &= ~(1 << 3);
   
@@ -311,9 +312,8 @@ void Switch_Init(){
   GPIO_PORTE_DATA_R = 0;
   GPIO_PORTD_DATA_R = 0;
   GPIO_PORTC_DATA_R = 0;
-  GPIO_PORTB_DATA_R = 0;
+  GPIO_PORTB_DATA_R = 0;B B
   */
-  
   
 	Timer2A_Init(&Switch_Handler, 800000, 4); // Poll at 100 Hz
 }

@@ -380,9 +380,7 @@ void _SendKeyReportBluetooth(void *pvKeyboardDevice, uint8_t report[8]) {
   if (!identical)
   {
 
-    for (int i = 0; i < 8; i++){
-      lastReport[i] = report[i];
-    }
+    
 
     // Send over UART
     for (int i = 0; i < 8; i++)
@@ -392,6 +390,18 @@ void _SendKeyReportBluetooth(void *pvKeyboardDevice, uint8_t report[8]) {
   }
 }
 
+bool isUniqueReport(uint8_t report1[8], uint8_t report2[8]){
+  for (int i = 0; i < 8; i++)
+  {
+    if (report1[i] != report2[i])
+    {
+      return true;
+      break;
+    }
+  }
+  return false;
+}
+
 // Public function called by Switch_Matrix.c at the end of it's poll
 // Sends the key report either by USB or Bluetooth
 void SendKeyReport() {
@@ -399,11 +409,15 @@ void SendKeyReport() {
 
   _GenerateReport((void *)&g_sKeyboardDevice, report);
 
-  if (bluetoothOn)
-  {
-    _SendKeyReportBluetooth((void *)&g_sKeyboardDevice, report);
-  } else {
-    _SendKeyReport((void *)&g_sKeyboardDevice, report);
+  if (isUniqueReport(report, lastReport)){
+    if (bluetoothOn) {
+      _SendKeyReportBluetooth((void *)&g_sKeyboardDevice, report);
+    } else {
+      _SendKeyReport((void *)&g_sKeyboardDevice, report);
+    }
+    for (int i = 0; i < 8; i++) {
+      lastReport[i] = report[i];
+    }
   }
 }
 
@@ -760,6 +774,7 @@ void PressKey(uint8_t c)
     break;
   default:
     KeyStateChange((void *)&g_sKeyboardDevice, modifierFlags, c, true);
+    return;
   }
 
   switch (c)
@@ -816,6 +831,7 @@ void ReleaseKey(uint8_t c)
                    modifierFlags,
                    c,
                    false);
+    return;
   }
 
   switch (c)
