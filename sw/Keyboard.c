@@ -51,7 +51,6 @@
 
 #include "drivers/rgb.h"
 #include "inc/CortexM.h"
-#include "inc/PLL.h"
 #include "inc/UART1.h"
 #include "inc/UART.h"
 #include "Switch_Matrix.h"
@@ -401,7 +400,7 @@ bool isUniqueReport(uint8_t report1[8], uint8_t report2[8]){
   }
   return false;
 }
-
+ 
 // Public function called by Switch_Matrix.c at the end of it's poll
 // Sends the key report either by USB or Bluetooth
 void SendKeyReport() {
@@ -732,12 +731,8 @@ bool WaitForSendIdle(uint_fast32_t ui32TimeoutTicks)
 
 uint8_t modifierFlags = 0;
 
-void PressKey(uint8_t c)
+void App_Keyboard_KeyPress(uint8_t c)
 {
-
-  //
-  // Send the key press message.
-  //
 
   g_eKeyboardState = STATE_SENDING;
   switch (c)
@@ -792,12 +787,8 @@ void PressKey(uint8_t c)
   }
 }
 
-void ReleaseKey(uint8_t c)
+void App_Keyboard_KeyRelease(uint8_t c)
 {
-
-  //
-  // Send the key release message.
-  //
 
   g_eKeyboardState = STATE_SENDING;
   switch (c)
@@ -855,71 +846,25 @@ void ReleaseKey(uint8_t c)
   //
 }
 
-//*****************************************************************************
-//
-// This is the interrupt handler for the SysTick interrupt.  It is used to
-// update our local tick count which, in turn, is used to check for transmit
-// timeouts.
-//
-//*****************************************************************************
-void SysTickIntHandler(void)
-{
-  g_ui32SysTickCount++;
-}
-
-//*****************************************************************************
-//
-// Configure the UART and its pins.  This must be called before UARTprintf().
-//
-//*****************************************************************************
-void ConfigureUART(void)
-{
-  //
-  // Enable the GPIO Peripheral used by the UART.
-  //
-  MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-
-  //
-  // Enable UART0.
-  //
-  MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-
-  //
-  // Configure GPIO Pins for UART mode.
-  //
-  MAP_GPIOPinConfigure(GPIO_PA0_U0RX);
-  MAP_GPIOPinConfigure(GPIO_PA1_U0TX);
-  MAP_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-
-  //
-  // Use the internal 16MHz oscillator as the UART clock source.
-  //
-  UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
-
-  //
-  // Initialize the UART for console I/O.
-  //
-  UARTStdioConfig(0, 115200, 16000000);
-}
-
 void Bluetooth_Init(){
+
+  // Setup UART with BGM220P
+  UART1_Init();
+
   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R3;
-  while (SYSCTL_PRGPIO & SYSCTL_PRGPIO_R3 != 1){}
+  while (!(SYSCTL_PRGPIO_R & SYSCTL_RCGCGPIO_R3)){}
 
   GPIO_PORTD_DIR_R |= 0x1;
   GPIO_PORTD_DEN_R |= 0x1;
-  GPIO_PORTD_PDR_R |= 0x1;
   GPIO_PORTD_DATA_R &= ~0x1;
 }
 
-//*****************************************************************************
-//
-// This is the main loop that runs the application.
-//
-//*****************************************************************************
-int main2(void)
-{
-  PLL_Init(Bus80MHz);
+void App_Keyboard_Tick(){ 
+  // NOT IMPLEMENTED
+  return; 
+}
+
+void App_Keyboard_Load(void) {
 
   // Initialize and turn on capslock LED (PD1, active low)
   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R3;
@@ -932,66 +877,9 @@ int main2(void)
   GPIO_PORTD_DEN_R |= 0x2;
 
   GPIO_PORTD_DATA_R &= ~0x2;
-
-  while (true)
-  {
-  }
-}
-
-int main(void)
-{
-  PLL_Init(Bus80MHz);
-
-  // Initialize and turn on capslock LED (PD1, active low)
-  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R3;
-  while (!(SYSCTL_PRGPIO_R & SYSCTL_RCGCGPIO_R3))
-  {
-  }
-
-  GPIO_PORTD_DIR_R |= 0x2;
-  GPIO_PORTD_PUR_R |= 0x2;
-  GPIO_PORTD_DEN_R |= 0x2;
-
-  /*
-  // Init UART with BGM220P
-  UART1_Init();
-
-  // Init UART with USB DEBUG
-  UART_Init();
-
-  UART_OutString("UART Debug connection established\n");
-
-  UART1_OutString("Hello BGM220P!\n");
-
-  while(true){
-    char buff[80] = "";
-    UART1_InString(buff, 80);
-    UART_OutString(buff);
-  }
-    */
-  // DisableInterrupts();
-
+  
   uint_fast32_t ui32LastTickCount;
   bool bLastSuspend;
-
-  //
-  // Enable lazy stacking for interrupt handlers.  This allows floating-point
-  // instructions to be used within interrupt handlers, but at the expense of
-  // extra stack usage.
-  //
-  // MAP_FPULazyStackingEnable();
-
-  //
-  // Set the clocking to run from the PLL at 50MHz.
-  //
-  // MAP_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
-  //                   SYSCTL_XTAL_16MHZ);
-
-  //
-  // Initialize the UART and display initial message.
-  //
-  // ConfigureUART();
-  // UARTprintf("usb-dev-keyboard example\n\r");
 
   //
   // Configure the required pins for USB operation.
@@ -1006,18 +894,6 @@ int main(void)
   {
     HWREG(GPIO_PORTB_BASE + GPIO_O_PDR) |= GPIO_PIN_1;
   }
-
-  //
-  // Enable the GPIO that is used for the on-board LED.
-  //
-  // MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-  // MAP_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
-  // MAP_GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0);
-
-  //
-  // Initialize the buttons driver.
-  //
-  // ButtonsInit();
 
   //
   // Not configured initially.
@@ -1041,62 +917,12 @@ int main(void)
   //
   USBDHIDKeyboardInit(0, &g_sKeyboardDevice);
 
-  //
-  // Set the system tick to fire 100 times per second.
-  //
-  // MAP_SysTickPeriodSet(MAP_SysCtlClockGet() / SYSTICKS_PER_SECOND);
-  // MAP_SysTickIntEnable();
-  // MAP_SysTickEnable();
+  Switch_Init();
 
-  // EnableInterrupts();
+  Bluetooth_Init();
+}
 
-  //
-  // The main loop starts here.  We begin by waiting for a host connection
-  // then drop into the main keyboard handling section.  If the host
-  // disconnects, we return to the top and wait for a new connection.
-  //
-
-  while (1)
-  {
-    /*
-        uint8_t ui8Buttons;
-        uint8_t ui8ButtonsChanged;
-
-        UARTprintf("Waiting for host...\n\r");
-    */
-
-    //
-    // Wait here until USB device is connected to a host.
-    //
-
-    Clock_Delay1ms(2000);
-    UART1_Init();
-    Switch_Init();
-    Bluetooth_Init();
-
-    while (!g_bConnected)
-    {
-      // RGBInit(true);
-    }
-
-    /*
-        UARTprintf("Host connected.\n\r");
-        UARTprintf("Now press any button.\n\r");
-    */
-
-    //
-    // Enter the idle state.
-    //
-    g_eKeyboardState = STATE_IDLE;
-
-    //
-    // Assume that the bus is not currently suspended if we have just been
-    // configured.
-    //
-    bLastSuspend = false;
-
-    while (g_bConnected)
-    {
-    }
-  }
+void App_Keyboard_Unload(){
+  // NOT IMPLEMENTED
+  return;
 }

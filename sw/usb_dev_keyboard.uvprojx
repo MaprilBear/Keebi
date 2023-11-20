@@ -391,11 +391,6 @@
               <FilePath>C:\ti\TivaWare_C_Series-2.2.0.295\utils\uartstdio.c</FilePath>
             </File>
             <File>
-              <FileName>usb_dev_keyboard.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\usb_dev_keyboard.c</FilePath>
-            </File>
-            <File>
               <FileName>usb_keyb_structs.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\usb_keyb_structs.c</FilePath>
@@ -416,11 +411,6 @@
               <FilePath>.\Switch_Matrix.c</FilePath>
             </File>
             <File>
-              <FileName>usb_dev_keyboard.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\usb_dev_keyboard.h</FilePath>
-            </File>
-            <File>
               <FileName>Switch_Matrix.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Switch_Matrix.h</FilePath>
@@ -429,6 +419,36 @@
               <FileName>startup_rvmdk.S</FileName>
               <FileType>2</FileType>
               <FilePath>.\startup_rvmdk.S</FilePath>
+            </File>
+            <File>
+              <FileName>App_BongoCat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App_BongoCat.c</FilePath>
+            </File>
+            <File>
+              <FileName>Bootloader.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Bootloader.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>Helpers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Helpers.c</FilePath>
+            </File>
+            <File>
+              <FileName>Keyboard.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Keyboard.c</FilePath>
+            </File>
+            <File>
+              <FileName>ST7735.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\ST7735.c</FilePath>
             </File>
           </Files>
         </Group>

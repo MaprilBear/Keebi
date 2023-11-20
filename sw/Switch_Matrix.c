@@ -2,8 +2,9 @@
 #include "inc/Timer2A.h"
 #include "inc/Unified_Port_Init.h"
 #include "inc/CortexM.h"
-#include "usb_dev_keyboard.h"
+#include "Bootloader.h"
 #include "Switch_Matrix.h"
+#include "Keyboard.h"
 #include <stdbool.h>
 
 #define ROW0 PF3
@@ -128,7 +129,7 @@ void Switch_Handler(){
 			
 			// pulse row
 			GPIO_PORTF_DATA_R |= (1 << 0);
-			Clock_Delay1ms(1);
+			Clock_Delay1ms(DELAY);
 			
 			// sense columns
       currentRow3 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 
@@ -140,13 +141,13 @@ void Switch_Handler(){
       // End pulse
  
       GPIO_PORTF_DATA_R &= ~(1 << 0);
-      Clock_Delay1ms(1);
+      Clock_Delay1ms(DELAY);
                     
       // ROW4 - PC3
 			
 			// pulse row
 			GPIO_PORTC_DATA_R |= (1 << 3);
-			Clock_Delay1ms(1);
+			Clock_Delay1ms(DELAY);
 			
 			// sense columns
       currentRow4 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 
@@ -158,7 +159,7 @@ void Switch_Handler(){
       // End pulse
  
       GPIO_PORTC_DATA_R &= ~(1 << 3);
-      Clock_Delay1ms(1);
+      Clock_Delay1ms(DELAY);
       
       // Check for modifier
       modifier = (currentRow3 & (1 << 13)) >> 13;
@@ -170,10 +171,10 @@ void Switch_Handler(){
           if (current != prev){
             if (current){
               // Now on, key press
-              PressKey(KeyboardMatrix[modifier][0][i]);
+              App_KeyPress(KeyboardMatrix[modifier][0][i]);
             } else {
               // Now off, key released
-              ReleaseKey(KeyboardMatrix[modifier][0][i]);
+              App_KeyRelease(KeyboardMatrix[modifier][0][i]);
             }
           }
       }
@@ -185,10 +186,10 @@ void Switch_Handler(){
           if (current != prev){
             if (current){
               // Now on, key press
-              PressKey(KeyboardMatrix[modifier][1][i]);
+              App_KeyPress(KeyboardMatrix[modifier][1][i]);
             } else {
               // Now off, key released
-              ReleaseKey(KeyboardMatrix[modifier][1][i]);
+              App_KeyRelease(KeyboardMatrix[modifier][1][i]);
             }
           }
       }
@@ -200,10 +201,10 @@ void Switch_Handler(){
           if (current != prev){
             if (current){
               // Now on, key press
-              PressKey(KeyboardMatrix[modifier][2][i]);
+              App_KeyPress(KeyboardMatrix[modifier][2][i]);
             } else {
               // Now off, key released
-              ReleaseKey(KeyboardMatrix[modifier][2][i]);
+              App_KeyRelease(KeyboardMatrix[modifier][2][i]);
             }
           }
       }
@@ -215,10 +216,10 @@ void Switch_Handler(){
           if (current != prev){
             if (current){
               // Now on, key press
-              PressKey(KeyboardMatrix[modifier][3][i]);
+              App_KeyPress(KeyboardMatrix[modifier][3][i]);
             } else {
               // Now off, key released
-              ReleaseKey(KeyboardMatrix[modifier][3][i]);
+              App_KeyRelease(KeyboardMatrix[modifier][3][i]);
             }
           }
       }
@@ -230,10 +231,10 @@ void Switch_Handler(){
           if (current != prev){
             if (current){
               // Now on, key press
-              PressKey(KeyboardMatrix[modifier][4][i]);
+              App_KeyPress(KeyboardMatrix[modifier][4][i]);
             } else {
               // Now off, key released
-              ReleaseKey(KeyboardMatrix[modifier][4][i]);
+              App_KeyRelease(KeyboardMatrix[modifier][4][i]);
             }
           }
       }
@@ -243,8 +244,6 @@ void Switch_Handler(){
       lastRow2 = currentRow2;
       lastRow3 = currentRow3;
       lastRow4 = currentRow4;
-      
-      
       
       // re-enable JTAG if both shift keys are held
       if ((currentRow3 & 0x1001) == 0x1001){
@@ -264,8 +263,6 @@ void Switch_Handler(){
 #define ROW2 PF1
 #define ROW3 PF0
 #define ROW4 PC3 // TDO, must unlock
-
-
 
 void Switch_Init(){
 
@@ -312,7 +309,7 @@ void Switch_Init(){
   GPIO_PORTE_DATA_R = 0;
   GPIO_PORTD_DATA_R = 0;
   GPIO_PORTC_DATA_R = 0;
-  GPIO_PORTB_DATA_R = 0;B B
+  GPIO_PORTB_DATA_R = 0;
   */
   
 	Timer2A_Init(&Switch_Handler, 800000, 4); // Poll at 100 Hz

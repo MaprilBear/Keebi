@@ -79,6 +79,7 @@ __heap_limit
 ;
 ;******************************************************************************
         EXTERN  SysTickIntHandler
+        EXTERN  Timer0A_Handler
         EXTERN  UARTStdioIntHandler
         EXTERN  USB0DeviceIntHandler
 		EXTERN  Timer2A_Handler
@@ -105,7 +106,7 @@ __Vectors
         DCD     IntDefaultHandler           ; Debug monitor handler
         DCD     0                           ; Reserved
         DCD     IntDefaultHandler           ; The PendSV handler
-        DCD     SysTickIntHandler           ; The SysTick handler
+        DCD     IntDefaultHandler           ; The SysTick handler
         DCD     IntDefaultHandler           ; GPIO Port A
         DCD     IntDefaultHandler           ; GPIO Port B
         DCD     IntDefaultHandler           ; GPIO Port C
@@ -125,7 +126,7 @@ __Vectors
         DCD     IntDefaultHandler           ; ADC Sequence 2
         DCD     IntDefaultHandler           ; ADC Sequence 3
         DCD     IntDefaultHandler           ; Watchdog timer
-        DCD     IntDefaultHandler           ; Timer 0 subtimer A
+        DCD     Timer0A_Handler           ; Timer 0 subtimer A
         DCD     IntDefaultHandler           ; Timer 0 subtimer B
         DCD     IntDefaultHandler           ; Timer 1 subtimer A
         DCD     IntDefaultHandler           ; Timer 1 subtimer B
@@ -246,6 +247,67 @@ __Vectors
         DCD     IntDefaultHandler           ; PWM 1 Generator 3
         DCD     IntDefaultHandler           ; PWM 1 Fault
 
+ALIGN
+
+;******************************************************************************
+;
+; Some code in the normal code section for initializing the heap and stack.
+;
+;******************************************************************************
+        AREA    |.text|, CODE, READONLY
+
+;******************************************************************************
+;
+; Useful functions.dadassddas
+;
+;******************************************************************************
+        EXPORT  DisableInterrupts
+        EXPORT  EnableInterrupts
+        EXPORT  StartCritical
+        EXPORT  EndCritical
+        EXPORT  WaitForInterrupt
+
+;*********** DisableInterrupts ***************
+; disable interrupts
+; inputs:  none
+; outputs: none
+DisableInterrupts
+        CPSID  I
+        BX     LR
+
+;*********** EnableInterrupts ***************
+; disable interrupts
+; inputs:  none
+; outputs: none
+EnableInterrupts
+        CPSIE  I
+        BX     LR
+
+;*********** StartCritical ************************
+; make a copy of previous I bit, disable interrupts
+; inputs:  none
+; outputs: previous I bit
+StartCritical
+        MRS    R0, PRIMASK  ; save old status
+        CPSID  I            ; mask all (except faults)
+        BX     LR
+
+;*********** EndCritical ************************
+; using the copy of previous I bit, restore I bit to previous value
+; inputs:  previous I bit
+; outputs: none
+EndCritical
+        MSR    PRIMASK, R0
+        BX     LR
+
+;*********** WaitForInterrupt ************************
+; go to low power mode while waiting for the next interrupt
+; inputs:  none
+; outputs: none
+WaitForInterrupt
+        WFI
+        BX     LR
+
 ;******************************************************************************
 ;
 ; This is the code that gets called when the processor first starts execution
@@ -253,6 +315,7 @@ __Vectors
 ;
 ;******************************************************************************
         EXPORT  Reset_Handler
+
 Reset_Handler
         ;
         ; Enable the floating-point unit.  This must be done here to handle the
