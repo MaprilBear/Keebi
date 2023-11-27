@@ -1067,6 +1067,71 @@ uint16_t ST7735_SwapColor(uint16_t x) {
   return (x << 11) | (x & 0x07E0) | (x >> 11);
 }
 
+// image data is 2 bit color compressed 4 horiz pixels to one byte
+
+void ST7735_DrawBitmapBongo(int16_t x, int16_t y, const uint8_t *image, int16_t w, int16_t h){
+  int16_t skipC = 0;                      // non-zero if columns need to be skipped due to clipping
+  int16_t originalWidth = w;              // save this value; even if not all columns fit on the screen, the image is still this width in ROM
+  int i = (w >> 2)*(h - 1);
+
+  if((x >= _width) || ((y - h + 1) >= _height) || ((x + w) <= 0) || (y < 0)){
+    return;                             // image is totally off the screen, do nothing
+  }
+  if((w > _width) || (h > _height)){    // image is too wide for the screen, do nothing
+    //***This isn't necessarily a fatal error, but it makes the
+    //following logic much more complicated, since you can have
+    //an image that exceeds multiple boundaries and needs to be
+    //clipped on more than one side.
+    return;
+  }
+  // if((x + w - 1) >= _width){            // image exceeds right of screen
+  //   skipC = (x + w) - _width;           // skip cut off columns
+  //   w = _width - x;
+  // }
+  // if((y - h + 1) < 0){                  // image exceeds top of screen
+  //   i = i - (h - y - 1)*originalWidth;  // skip the last cut off rows
+  //   h = y + 1;
+  // }
+  // if(x < 0){                            // image exceeds left of screen
+  //   w = w + x;
+  //   skipC = -1*x;                       // skip cut off columns
+  //   i = i - x;                          // skip the first cut off columns
+  //   x = 0;
+  // }
+  // if(y >= _height){                     // image exceeds bottom of screen
+  //   h = h - (y - _height + 1);
+  //   y = _height - 1;
+  // }
+
+  setAddrWindow(x, y-h+1, x+w-1, y);
+  //ARBG
+  for (int j = 0; j < (w >> 2) * h; j++){
+    uint8_t pixels[4] = {(image[j] & 0xC0) >> 6, (image[j] & 0x30) >> 4, (image[j] & 0xC) >> 2, image[j] & 0x3};
+        for (int k = 0; k < 4; k++){
+          switch (pixels[k]){
+            case 0:
+              writedata(0);
+              writedata(0);
+              break;
+            case 1:
+              writedata(0xFF);
+              writedata(0xFF);
+              break;
+            case 2: 
+              writedata(0x14);
+              writedata(0x09);
+              break;
+            case 3: 
+              writedata(0x34);
+              writedata(0x06);
+              break;
+            } 
+      }
+  }
+
+  deselect();
+}
+
 
 //------------ST7735_DrawBitmap------------
 // Displays a 16-bit color BMP image.  A bitmap file that is created

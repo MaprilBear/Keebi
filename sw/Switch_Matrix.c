@@ -147,7 +147,7 @@ void Switch_Handler(){
 			
 			// pulse row
 			GPIO_PORTC_DATA_R |= (1 << 3);
-			Clock_Delay1ms(DELAY);
+			Clock_Delay1ms(1);
 			
 			// sense columns
       currentRow4 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 

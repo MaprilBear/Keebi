@@ -245,40 +245,7 @@ uint16_t ST7735_Color565(uint8_t r, uint8_t g, uint8_t b);
 uint16_t ST7735_SwapColor(uint16_t x) ;
 
 
-//------------ST7735_DrawBitmap------------
-// Displays a 16-bit color BMP image.  A bitmap file that is created
-// by a PC image processing program has a header and may be padded
-// with dummy columns so the data have four byte alignment.  This
-// function assumes that all of that has been stripped out, and the
-// array image[] has one 16-bit halfword for each pixel to be
-// displayed on the screen (encoded in reverse order, which is
-// standard for bitmap files).  An array can be created in this
-// format from a 24-bit-per-pixel .bmp file using the associated
-// converter program.
-// (x,y) is the screen location of the lower left corner of BMP image
-// Requires (11 + 2*w*h) bytes of transmission (assuming image fully on screen)
-// Input: x     horizontal position of the bottom left corner of the image, columns from the left edge
-//        y     vertical position of the bottom left corner of the image, rows from the top edge
-//        image pointer to a 16-bit color BMP image
-//        w     number of pixels wide
-//        h     number of pixels tall
-// Output: none
-// Must be less than or equal to 128 pixels wide by 160 pixels high
-void ST7735_DrawBitmap(int16_t x, int16_t y, const uint16_t *image, int16_t w, int16_t h);
-
-//------------ST7735_DrawCharS------------
-// Simple character draw function.  This is the same function from
-// Adafruit_GFX.c but adapted for this processor.  However, each call
-// to ST7735_DrawPixel() calls setAddrWindow(), which needs to send
-// many extra data and commands.  If the background color is the same
-// as the text color, no background will be printed, and text can be
-// drawn right over existing images without covering them with a box.
-// Requires (11 + 2*size*size)*6*8 (image fully on screen; textcolor != bgColor)
-// Input: x         horizontal position of the top left corner of the character, columns from the left edge
-//        y         vertical position of the top left corner of the character, rows from the top edge
-//        c         character to be printed
-//        textColor 16-bit color of the character
-//        bgColor   16-bit color of the background
+void ST7735_DrawBitmapBongo(int16_t x, int16_t y, const uint8_t *image, int16_t w, int16_t h);
 //        size      number of pixels per character pixel (e.g. size==2 prints each pixel of font as 2x2 square)
 // Output: none
 void ST7735_DrawCharS(int16_t x, int16_t y, char c, int16_t textColor, int16_t bgColor, uint8_t size);
