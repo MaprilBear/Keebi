@@ -244,6 +244,7 @@ uint16_t ST7735_Color565(uint8_t r, uint8_t g, uint8_t b);
 // Output: 16-bit color in format R, G, B
 uint16_t ST7735_SwapColor(uint16_t x) ;
 
+void ST7735_OutCPM(uint32_t CPM);
 
 void ST7735_DrawBitmapBongo(int16_t x, int16_t y, const uint8_t *image, int16_t w, int16_t h);
 //        size      number of pixels per character pixel (e.g. size==2 prints each pixel of font as 2x2 square)
