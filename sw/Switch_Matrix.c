@@ -1,5 +1,5 @@
 #include "inc/tm4c123gh6pm.h"
-#include "inc/Timer2A.h"
+#include "inc/Timer0A.h"
 #include "inc/Unified_Port_Init.h"
 #include "inc/CortexM.h"
 #include "Bootloader.h"
@@ -51,7 +51,7 @@ uint8_t KeyboardMatrix[2][5][14] = {
     {HID_KEYB_USAGE_BQUOTE, HID_KEYB_USAGE_F1, HID_KEYB_USAGE_F2, HID_KEYB_USAGE_F3, HID_KEYB_USAGE_F4, HID_KEYB_USAGE_F5, HID_KEYB_USAGE_F6, HID_KEYB_USAGE_F7, HID_KEYB_USAGE_F8, HID_KEYB_USAGE_F9, HID_KEYB_USAGE_F10, HID_KEYB_USAGE_F11, HID_KEYB_USAGE_F12, DELETE},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, PAUSE, HOME, END, INSERT},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, CALC, 0, BLUETOOTH, 0, MUTE, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, CALC, 0, BLUETOOTH, 0, MUTE, 0, APP_A, APP_B, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, PREV, VOL_DN, VOL_UP, NEXT}
   }
   } ;
@@ -147,7 +147,7 @@ void Switch_Handler(){
 			
 			// pulse row
 			GPIO_PORTC_DATA_R |= (1 << 3);
-			Clock_Delay1ms(1);
+			Clock_Delay1ms(DELAY);
 			
 			// sense columns
       currentRow4 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 
@@ -312,9 +312,9 @@ void Switch_Init(){
   GPIO_PORTB_DATA_R = 0;
   */
   
-	Timer2A_Init(&Switch_Handler, 800000, 4); // Poll at 100 Hz
+	Timer0A_Init(&Switch_Handler, 800000, 4); // Poll at 100 Hz
 }
 
 void Switch_Stop(){
-	Timer2A_Stop();
+	Timer0A_Stop();
 }

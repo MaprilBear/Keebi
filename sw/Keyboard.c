@@ -661,7 +661,7 @@ KeyboardHandler(void *pvCBData, uint32_t ui32Event, uint32_t ui32MsgData,
     //
     // Set the LED to match the current state of the caps lock LED.
     //
-    GPIO_PORTD_DATA_R = (GPIO_PORTD_DATA_R & ~0x2) + (ui32MsgData & HID_KEYB_CAPS_LOCK ? 0 : 0x2);
+    //GPIO_PORTD_DATA_R = (GPIO_PORTD_DATA_R & ~0x2) + (ui32MsgData & HID_KEYB_CAPS_LOCK ? 0 : 0x2);
 
     break;
   }
@@ -767,6 +767,9 @@ void App_Keyboard_KeyPress(uint8_t c)
   case BLUETOOTH:
     ToggleBluetooth();
     break;
+  case APP_A:
+  case APP_B:
+    return;
   default:
     KeyStateChange((void *)&g_sKeyboardDevice, modifierFlags, c, true);
     return;
@@ -817,6 +820,9 @@ void App_Keyboard_KeyRelease(uint8_t c)
   case RIGHT_GUI:
     modifierFlags &= ~HID_KEYB_RIGHT_GUI;
     break;
+  case APP_A:
+  case APP_B:
+    return;
   default:
     KeyStateChange((void *)&g_sKeyboardDevice,
                    modifierFlags,

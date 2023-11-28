@@ -450,6 +450,16 @@
               <FileType>1</FileType>
               <FilePath>.\inc\ST7735.c</FilePath>
             </File>
+            <File>
+              <FileName>App_Clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\App_Clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>App_Clock.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\App_Clock.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -519,6 +529,26 @@
               <FileName>UART1.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\inc\UART1.c</FilePath>
+            </File>
+            <File>
+              <FileName>SysTickInts.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\SysTickInts.h</FilePath>
+            </File>
+            <File>
+              <FileName>SysTickInts.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\SysTickInts.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer3A.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\inc\Timer3A.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer3A.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\Timer3A.h</FilePath>
             </File>
           </Files>
         </Group>

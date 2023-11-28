@@ -26,6 +26,9 @@
 #define CALC 0xFB
 #define VOL_UP 0xED
 #define VOL_DN 0xEE
+#define APP_A 0xEF
+#define APP_B 0xF0
+
 void Switch_Init(void);
 void Switch_Stop(void);
 void Switch_Start(void);
