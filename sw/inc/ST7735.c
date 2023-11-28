@@ -1488,8 +1488,29 @@ void ST7735_OutUDecCustom(uint32_t n, int16_t text_color, int16_t background_col
 
 // displays CPM for final project
 void ST7735_OutCPM(uint32_t CPM){
+	// get color of text
+	uint8_t r,g,b;
+	if(CPM<128){
+		r = 0xff;
+		g = CPM<<1;
+		b = 0x00;
+	}else if(CPM < 256){
+		r = 0xff-(CPM-128);
+		g = 0xff;
+		b = 0x00;
+	}else if( CPM < 512){
+		r = CPM-256;
+		g = 0xff;
+		b = CPM-256;
+	}else{
+		r = 0xff;
+		g = 0xff;
+		b = 0xff;
+	}
 	
-	ST7735_OutUDecCustom(CPM, ST7735_WHITE, ST7735_BLACK, 7, 4, 25);
+	uint16_t color = ST7735_Color565(r,g,b);
+	
+	ST7735_OutUDecCustom(CPM, color, ST7735_BLACK, 7, 4, 25);
 	
 	if(CPM < 10){
 		ST7735_FillRect(46, 25, 128-46, 55, ST7735_BLACK);
