@@ -337,6 +337,19 @@ uint32_t _SendKeyReport(void *pvKeyboardDevice, uint8_t report[8]) {
   }
 }
 
+// Toggle bluetooth, duh :P
+void ToggleBluetooth(){
+  if (bluetoothOn){
+    // disable the flag and tell the bluetooth chip to shutdown (active low)
+    bluetoothOn = false;
+    GPIO_PORTD_DATA_R &= ~0x1;
+  } else {
+    // enable the flag and wakeup the bluetooth chip
+    bluetoothOn = true;
+    GPIO_PORTD_DATA_R |= 0x1;
+  }
+}
+
 // last report so we only tell the bluetooth chip when the currently pressed keys changes
 uint8_t lastReport[8];
 
@@ -378,13 +391,15 @@ void _SendKeyReportBluetooth(void *pvKeyboardDevice, uint8_t report[8]) {
 
   if (!identical)
   {
-
-    
-
     // Send over UART
     for (int i = 0; i < 8; i++)
     {
-      UART1_OutChar(report[i]);
+      if (UART1_OutChar(report[i]) != 0){
+        ToggleBluetooth();
+        Clock_Delay1ms(1000);
+        ToggleBluetooth();
+        break;
+      }
     }
   }
 }
@@ -420,18 +435,7 @@ void SendKeyReport() {
   }
 }
 
-// Toggle bluetooth, duh :P
-void ToggleBluetooth(){
-  if (bluetoothOn){
-    // disable the flag and tell the bluetooth chip to shutdown (active low)
-    bluetoothOn = false;
-    GPIO_PORTD_DATA_R &= ~0x1;
-  } else {
-    // enable the flag and wakeup the bluetooth chip
-    bluetoothOn = true;
-    GPIO_PORTD_DATA_R |= 0x1;
-  }
-}
+
 
 // Add or remove the keycode from our list
 uint32_t KeyStateChange(void *pvKeyboardDevice, uint8_t ui8Modifiers, uint8_t ui8UsageCode, bool bPress) {
@@ -661,7 +665,7 @@ KeyboardHandler(void *pvCBData, uint32_t ui32Event, uint32_t ui32MsgData,
     //
     // Set the LED to match the current state of the caps lock LED.
     //
-    //GPIO_PORTD_DATA_R = (GPIO_PORTD_DATA_R & ~0x2) + (ui32MsgData & HID_KEYB_CAPS_LOCK ? 0 : 0x2);
+    GPIO_PORTD_DATA_R = (GPIO_PORTD_DATA_R & ~0x2) + (ui32MsgData & HID_KEYB_CAPS_LOCK ? 0 : 0x2);
 
     break;
   }

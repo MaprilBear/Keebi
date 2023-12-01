@@ -1509,14 +1509,25 @@ void ST7735_OutCPM(uint32_t CPM){
 	}
 	
 	uint16_t color = ST7735_Color565(r,g,b);
+	int oldX = ST7735_GetCursorX();
+  int oldY = ST7735_GetCursorY();
+  ST7735_SetCursor(oldX, oldY);
+  if (CPM < 10){
+    char str[4] = {' ', ' ', CPM + '0', 0};
+    ST7735_DrawStringCustom(oldX, oldY, str, color, ST7735_BLACK, 7,4,25);
+  } else if (CPM < 100){
+    char str[4] = {' ', (CPM / 10) + '0', (CPM % 10) + '0', 0};
+    ST7735_DrawStringCustom(oldX, oldY, str, color, ST7735_BLACK, 7,4,25);
+  } else {
+    char str[4] = {(CPM / 100) + '0', ((CPM / 10) % 10) + '0', (CPM % 10) + '0', 0};
+    ST7735_DrawStringCustom(oldX, oldY, str, color, ST7735_BLACK, 7,4,25);
+  }
 	
-	ST7735_OutUDecCustom(CPM, color, ST7735_BLACK, 7, 4, 25);
-	
-	if(CPM < 10){
-		ST7735_FillRect(46, 25, 128-46, 55, ST7735_BLACK);
-	}else if(CPM < 100){
-		ST7735_FillRect(88, 25, 128-88, 55, ST7735_BLACK);
-	}
+	// if(CPM < 10){
+	// 	ST7735_FillRect(46, 25, 128-46, 55, ST7735_BLACK);
+	// }else if(CPM < 100){
+	// 	ST7735_FillRect(88, 25, 128-88, 55, ST7735_BLACK);
+	// }
 }
 
 //-----------------------ST7735_OutUDec4-----------------------

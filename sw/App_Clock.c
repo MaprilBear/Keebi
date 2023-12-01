@@ -438,8 +438,6 @@ void Clock_Display_Analog(short hour, short minute, short second){
 void Clock_Refresh(){
 	// check if alarm was triggered
 
-    //GPIO_PORTD_DATA_R ^= 0x2;
-
 	if (alarmOnFirst){
 		ST7735_SetCursor(0,4);
 		ST7735_OutString("ALARM!");
@@ -497,8 +495,6 @@ void Clock_Refresh(){
 // Runs every second from Timer1A's ISR
 void Clock_ISR(){
 
-    GPIO_PORTD_DATA_R ^= 0x2;
-
 	if (++timeArray[SECOND] >= 60){
 		timeArray[SECOND] %= 60;
 		if (++timeArray[MINUTE] >= 60){
@@ -526,9 +522,7 @@ void Clock_ISR(){
 void App_Clock_Load(void) {
 
     /* Interrupts currently being used:
-        Timer2A, pri4 - Clock time update
-        Timer5A, pri7 - LCD graphic refresh
-    */
+        Timer2A>
 	
     /* Start up display. */
     ST7735_InitR(INITR_REDTAB);
@@ -551,7 +545,7 @@ void App_Clock_Load(void) {
 
     DisableInterrupts();
 	// Register our Time ISR and Graphics ISR with Timer1A and B and start it
-	Timer2A_Init(&Clock_ISR, CLOCK_PERIOD, 5);
+	//Timer2A_Init(&Clock_ISR, CLOCK_PERIOD, 5);
 
 	// Register our Graphics ISR with Timer1B and start it, this will trigger 5 times per second (hopefully)
 	//Timer1A_Init(&Clock_Refresh, REFRESH_PERIOD, 3);
@@ -573,11 +567,14 @@ void App_Clock_KeyRelease(uint8_t usageCode){
 }
 
 void App_Clock_Tick(){
-    return;
+    static int count = 0;
+    if (count++ % 30 == 0){
+        Clock_ISR();
+    }
 }
 
 void App_Clock_Unload(){
-    Timer2A_Stop();
+    //Timer2A_Stop();
     //Timer1A_Stop();
     ST7735_FillScreen(ST7735_BLACK);
 }

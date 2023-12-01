@@ -531,16 +531,6 @@
               <FilePath>.\inc\UART1.c</FilePath>
             </File>
             <File>
-              <FileName>SysTickInts.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\inc\SysTickInts.h</FilePath>
-            </File>
-            <File>
-              <FileName>SysTickInts.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\inc\SysTickInts.c</FilePath>
-            </File>
-            <File>
               <FileName>Timer3A.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\inc\Timer3A.c</FilePath>

@@ -76,9 +76,15 @@ char UART1_InChar(void){
 // Input: letter is an 8-bit ASCII character to be transferred
 // Output: none
 //
-void UART1_OutChar(char data){
-  while((UART1_FR_R&UART1_FR_TXFF) != 0);
-  UART1_DR_R = data;
+int UART1_OutChar(char data){
+  int count = 0;
+  while(((UART1_FR_R&UART1_FR_TXFF) != 0) && (count++ < 100));
+  if (count >= 90){
+    return 1;
+  } else {
+    UART1_DR_R = data;
+    return 0;
+  }
 }
 
 

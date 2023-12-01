@@ -1,8 +1,9 @@
 #include <stdbool.h>
 #include "./inc/ST7735.h"
-#include "./inc/Timer1A.h"`
+#include "./inc/Timer2A.h"
+#include "./inc/tm4c123gh6pm.h"
 
-#define CPS_LEN 5
+
 
 #define BONGOCAT1_HEIGHT 79
 #define BONGOCAT1_WIDTH 128
@@ -270,6 +271,7 @@ uint8_t bongocat2_left[8*38] = {
     0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xa8
 };
 
+#define CPS_LEN 5
 
 uint8_t chars_per_sec[CPS_LEN];
 uint8_t CPS_Index;
@@ -282,22 +284,22 @@ void CPM_Disp(uint16_t CPM){
 }
 
 
-// called every second
+// called 30 times per second
 void CPM_Timer_Handler(void){
-	// average CPM of the last 5 seconds
+    // average CPM of the last 1 second
 	uint16_t CPM = 0;
 	for(int i = 0; i < CPS_LEN; i ++){
 		CPM += chars_per_sec[i];
 	}
-	CPM *= 60/CPS_LEN;
-	
+	CPM = (CPM * 60)/5;
+
 	// move index, and zero oldest data
 	// new data will overwrite
 	CPS_Index += 1;
 	CPS_Index %= CPS_LEN;
 	chars_per_sec[CPS_Index] = 0;	
 	
-	CPM_Disp(CPM);
+	CPM_Disp(CPM > 999 ? 999 : CPM);
 }
 
 
@@ -312,13 +314,10 @@ void CPM_Init(void){
 	
 	//
 	ST7735_SetCursor(0,0);
-	char message[] = "Char per min:";
+	char message[] = "CPM";
 	//ST7735_DrawStringCustom(5, 10, message, ST7735_WHITE, ST7735_BLACK, 4, 1, 1);
-	 ST7735_OutStringCustom(message, ST7735_WHITE, ST7735_BLACK, 1, 5, 0);
-	
-	// start 1 sec timer
-	Timer1A_Init(&CPM_Timer_Handler, 0x4C4B400, 3);
-	
+	 ST7735_OutStringCustom(message, ST7735_WHITE, ST7735_BLACK, 2, 47, 0);
+
 	CPM_Disp(0);
 }
 
@@ -332,25 +331,25 @@ void Bongo_Disp(void){
 			ST7735_DrawBitmapBongo(BONGOCAT2_LEFT_X, 80+BONGOCAT2_LEFT_HEIGHT+BONGOCAT2_LEFT_Y, bongocat2_left, BONGOCAT2_LEFT_WIDTH, BONGOCAT2_LEFT_HEIGHT);
     } else{
 			ST7735_DrawBitmapBongo(0, 159, bongocat1, BONGOCAT1_WIDTH, BONGOCAT1_HEIGHT);
-		}
+	}
 
 }
 
 void App_BongoCat_Load(void){
-		ST7735_InitR(INITR_REDTAB);
+	ST7735_InitR(INITR_REDTAB);
     ST7735_FillScreen(ST7735_BLACK);
-    //ST7735_SetRotation(2);
+    ST7735_SetRotation(2);
     left = false;
     right = false;
     Bongo_Disp();
-		CPM_Init();
+	CPM_Init();
 }
 	
 void App_BongoCat_KeyPress(uint8_t usageCode){
     left ^= 1;
     right ^= 1;
     Bongo_Disp();
-		chars_per_sec[CPS_Index] += 1;
+	chars_per_sec[CPS_Index] += 1;
 }
 
 void App_BongoCat_KeyRelease(uint8_t usageCode){
@@ -358,10 +357,13 @@ void App_BongoCat_KeyRelease(uint8_t usageCode){
 }
 
 void App_BongoCat_Tick(){
-    // NOT IMPLEMENTED
-    return;
+    static int count = 0;
+    if (count++ % 30 == 0){
+        CPM_Timer_Handler();
+    }
 }
 
 void App_BongoCat_Unload(void){
 	ST7735_PlotClear(80,159);
+    ST7735_FillScreen(ST7735_BLACK);
 }

@@ -57,6 +57,7 @@ uint8_t KeyboardMatrix[2][5][14] = {
   } ;
 
 void Switch_Handler(){
+  DisableInterrupts();
 	static short counter = 0;
 	
 	uint16_t currentRow0 = 0;
@@ -147,7 +148,7 @@ void Switch_Handler(){
 			
 			// pulse row
 			GPIO_PORTC_DATA_R |= (1 << 3);
-			Clock_Delay1ms(DELAY);
+			Clock_Delay1ms(1);
 			
 			// sense columns
       currentRow4 = ((bool)COL0) + ((bool)COL1 << 1) + ((bool)COL2 << 2) + ((bool)COL3 << 3) 
@@ -245,6 +246,7 @@ void Switch_Handler(){
       lastRow3 = currentRow3;
       lastRow4 = currentRow4;
       
+      
       // re-enable JTAG if both shift keys are held
       if ((currentRow3 & 0x1001) == 0x1001){
         GPIO_PORTC_PDR_R |= (1 << 3);
@@ -255,7 +257,7 @@ void Switch_Handler(){
         SendKeyReport();
       }
       
-  
+  EnableInterrupts();
 }
 
 #define ROW0 PF3

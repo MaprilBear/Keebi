@@ -42,7 +42,7 @@ char UART1_InChar(void);
 // Input: letter is an 8-bit ASCII character to be transferred
 // Output: none
 //
-void UART1_OutChar(char data);
+int UART1_OutChar(char data);
 
 
 //------------------- UART1_Init-------------------

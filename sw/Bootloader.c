@@ -1,4 +1,4 @@
-#include "./inc/Timer0A.h"
+#include "./inc/Timer2A.h"
 #include "Helpers.h"
 #include "inc/CortexM.h"
 #include "inc/tm4c123gh6pm.h"
@@ -10,7 +10,7 @@
 #include "App_Clock.h"
 
 enum Apps{
-    KEYBOARD, BONGO_CAT, CLOCK
+    KEYBOARD, BONGO_CAT, CLOCK, NONE
 } typedef Apps;
 
 #define MAX_APPS 8
@@ -35,22 +35,22 @@ void(*releaseArray[8])(uint8_t);
 void LoadApp(Apps app){
     switch (app){
         case KEYBOARD:
-            tickArraySize = ArrayAdd(App_Keyboard_Tick, tickArray, tickArraySize, MAX_APPS);
-            pressArraySize = ArrayAddUint8(App_Keyboard_KeyPress, pressArray, pressArraySize, MAX_APPS);
-            releaseArraySize = ArrayAddUint8(App_Keyboard_KeyRelease, releaseArray, releaseArraySize, MAX_APPS);
             App_Keyboard_Load();
+            tickArraySize = ArrayAdd(&App_Keyboard_Tick, tickArray, tickArraySize, MAX_APPS);
+            pressArraySize = ArrayAddUint8(&App_Keyboard_KeyPress, pressArray, pressArraySize, MAX_APPS);
+            releaseArraySize = ArrayAddUint8(&App_Keyboard_KeyRelease, releaseArray, releaseArraySize, MAX_APPS);
             break;
         case BONGO_CAT:
-            tickArraySize = ArrayAdd(App_BongoCat_Tick, tickArray, tickArraySize, MAX_APPS);
-            pressArraySize = ArrayAddUint8(App_BongoCat_KeyPress, pressArray, pressArraySize, MAX_APPS);
-            releaseArraySize = ArrayAddUint8(App_BongoCat_KeyRelease, releaseArray, releaseArraySize, MAX_APPS);
             App_BongoCat_Load();
+            tickArraySize = ArrayAdd(&App_BongoCat_Tick, tickArray, tickArraySize, MAX_APPS);
+            pressArraySize = ArrayAddUint8(&App_BongoCat_KeyPress, pressArray, pressArraySize, MAX_APPS);
+            releaseArraySize = ArrayAddUint8(&App_BongoCat_KeyRelease, releaseArray, releaseArraySize, MAX_APPS);
             break;
         case CLOCK:
-            tickArraySize = ArrayAdd(App_Clock_Tick, tickArray, tickArraySize, MAX_APPS);
-            pressArraySize = ArrayAddUint8(App_Clock_KeyPress, pressArray, pressArraySize, MAX_APPS);
-            releaseArraySize = ArrayAddUint8(App_Clock_KeyRelease, releaseArray, releaseArraySize, MAX_APPS);
             App_Clock_Load();
+            tickArraySize = ArrayAdd(&App_Clock_Tick, tickArray, tickArraySize, MAX_APPS);
+            pressArraySize = ArrayAddUint8(&App_Clock_KeyPress, pressArray, pressArraySize, MAX_APPS);
+            releaseArraySize = ArrayAddUint8(&App_Clock_KeyRelease, releaseArray, releaseArraySize, MAX_APPS);
             break;
     }
 }
@@ -90,11 +90,9 @@ void UnloadApp(Apps app){
 // Main logic for each app
 void AppTick(){
     for (int i = 0; i < tickArraySize; i++){
-        tickArray[i]();
+        (tickArray[i])();
     }
 }
-
-
 
 void App_KeyPress(uint8_t usageCode){
     if (usageCode == APP_A || usageCode == APP_B){
@@ -104,6 +102,8 @@ void App_KeyPress(uint8_t usageCode){
             loadedApp = CLOCK;
         } else if (loadedApp == CLOCK){
             UnloadApp(CLOCK);
+            loadedApp = NONE;
+        } else if (loadedApp == NONE){
             LoadApp(BONGO_CAT);
             loadedApp = BONGO_CAT;
         }
@@ -121,13 +121,12 @@ void App_KeyRelease(uint8_t usageCode){
     }
 }
 
-
-
 void Bootloader_Entry(){
-    Timer0A_Init(&AppTick, 2666666, 7); // Tick apps at 60 tps
-
-    LoadApp(KEYBOARD);
+    Timer2A_Init(&AppTick, 2666666, 7); // Tick apps at 30 tps
+    
     LoadApp(BONGO_CAT);
+    LoadApp(KEYBOARD);
+    
     loadedApp = BONGO_CAT;
 
     while(1){
