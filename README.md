@@ -1,8 +1,29 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-718a45dd9cf7e7f842a935f5ebbe5719a5e09af4491e668f4dbf3b35d5cca122.svg)](https://classroom.github.com/online_ide?assignment_repo_id=12359023&assignment_repo_type=AssignmentRepo)
-# ECE445L Final Lab
+# Stoatboard
+Final project of ECE 445L (Embedded Systems Design Lab) at UT Austin under Mark McDermott
 
-[Lab 7 doc](ECE 445L Fall 2023 Lab 7.docx)
+The Stoatboard is a USB and Bluetooth enabled wireless keyboard with an attached Color LCD
 
-[Lab 8 doc (N/A)](Lab08.docx)
+MCUs: TM4C123G and the BGM220P
+LCD: Adafruit 1.8" TFT LCD (Product ID 358)
 
-[Lab 11 doc (N/A)](Lab11.docx)
+A bill of materials is included in this repository
+
+## Credits
+- April Douglas - Schematic and PCB Design, Firmware
+- Matija Jankovic - Schematic and PCB Design, PCB Assembly
+- Jenna May - Firmware
+- Eric Wang - Case
+
+## How to Use
+- Fn+B - Toggle Bluetooth 
+- Fn+Period - Cycle between apps 
+- All keys are defined in Switch_Matrix.c
+
+## Errata
+1.  The bottom row of keys is unconnected to the main MCU
+    -  Fix - Solder a wire from the bottom of the Left Arrow key diode to the TDO pin of the JTAG pinout. Holding down both shift keys will return TDO to it's JTAG confirguration and allow for flashing
+2. There is crosstalk between the control, alt, shift, and windows keys in the bottom right. Win+RShift for example is detected as Ctrl+Win+RShift and Ctrl+Z is sometimes detected as Ctrl+Alt+Z
+    - No Fix 
+3. Bluetooth will sometimes "break" and cause the keyboard to become entirely unresponsive outside of the current app on the display
+    -  Workaround - When using bluetooth make sure to toggle the blank screen "app" with Fn+Period, this will avoid the crash in most situations
+    - Theorized Cause -  Crosstalk between LCD SPI traces and UART traces to the BGM220P
