@@ -1,4 +1,6 @@
 # Stoatboard
+
+![](Stoatboard.jpg)
 Final project of ECE 445L (Embedded Systems Design Lab) at UT Austin under Mark McDermott
 
 The Stoatboard is a USB and Bluetooth enabled wireless keyboard with an attached Color LCD
