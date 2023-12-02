@@ -3,7 +3,7 @@
 ![](Stoatboard.jpg)
 Final project of ECE 445L (Embedded Systems Design Lab) at UT Austin under Mark McDermott
 
-The Stoatboard is a USB and Bluetooth enabled wireless keyboard with an attached Color LCD
+The Stoatboard is a USB and Bluetooth enabled wireless hotswap keyboard with an attached color LCD
 
 MCUs: TM4C123G and the BGM220P <br>
 LCD: Adafruit 1.8" TFT LCD (Product ID 358) <br>
