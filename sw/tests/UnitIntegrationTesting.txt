@@ -1,12 +1,14 @@
 Unit and integration tests for the various board modules are provided below:
 
+Before proceeding to the tests below, we first checked whether any PCB shorts exist. 
+
 1. Solder and test the power circuit (LDO regulator), to ensure it is converting the input voltage to the required 3.3V. Can initially provide input voltage using a DC power supply.
 
-2. Solder and test the micro-USB connector. Micro USB provides 5V to the switching IC.
+2. Solder the switching IC.
 
-3. Solder the battery connector.
+3. Solder battery connector & micro-USB connector. Verify that micro USB provides 5V to the switching IC. 
 
-4. Solder and test the power switching IC to ensure it can i) switch between between input voltages supplied by the batteries and the USB, and ii) provide a stable output voltage in battery-operated mode in situations where USB power is disconnected.
+4. Test the power switching IC to ensure it can i) switch between between input voltages supplied by the batteries and the USB, and ii) provide a stable output voltage in battery-operated mode in situations where USB power is disconnected.
 
 5. Solder TM4C123 QFP IC.
 
