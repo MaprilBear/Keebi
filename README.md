@@ -1,9 +1,9 @@
-# Stoatboard
+# Keebi
 
 ![](Stoatboard.jpg)
 Final project of ECE 445L (Embedded Systems Design Lab) at UT Austin under Mark McDermott
 
-The Stoatboard is a USB and Bluetooth enabled wireless hotswap keyboard with an attached color LCD
+The Keebi is a USB and Bluetooth enabled wireless hotswappable 60% keyboard with an attached color TFT LCD
 
 MCUs: TM4C123G and the BGM220P <br>
 LCD: Adafruit 1.8" TFT LCD (Product ID 358) <br>
@@ -26,6 +26,6 @@ A bill of materials is included in this repository
     -  Fix - Solder a wire from the bottom of the Left Arrow key diode to the TDO pin of the JTAG pinout. Holding down both shift keys will return TDO to it's JTAG confirguration and allow for flashing
 2. There is crosstalk between the control, alt, shift, and windows keys in the bottom right. Win+RShift for example is detected as Ctrl+Win+RShift and Ctrl+Z is sometimes detected as Ctrl+Alt+Z
     - No Fix 
-3. Bluetooth will sometimes "break" and cause the keyboard to become entirely unresponsive outside of the current app on the display
-    -  Workaround - When using bluetooth make sure to toggle the blank screen "app" with Fn+Period, this will avoid the crash in most situations
-    - Theorized Cause -  Crosstalk between LCD SPI traces and UART traces to the BGM220P
+3. Bluetooth will sometimes break and cause the keyboard to become entirely unresponsive outside of the current app on the display
+    - Workaround - When using bluetooth make sure to toggle the blank screen app with Fn+Period, this will avoid the crash in most situations
+    - Theorized Cause - Crosstalk between LCD SPI traces and UART traces to the BGM220P or some other issue leading to malformed UART packets which the BGM220P firmware is not designed to handle
