@@ -1,6 +1,7 @@
 # Keebi
 
 ![](Keebi.jpg)
+![](KeebiPCB.png)
 Final project of ECE 445L (Embedded Systems Design Lab) at UT Austin with Mark McDermott (Fall 2023)
 
 The Keebi is a USB and Bluetooth enabled wireless hotswappable 60% keyboard with an attached color TFT LCD
